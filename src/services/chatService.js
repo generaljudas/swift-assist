@@ -49,18 +49,26 @@ class ChatService {
   }
 
   async sendToOpenAI(message, conversationHistory) {
-    const messages = [
-      { role: 'system', content: SYSTEM_CONTEXT },
-      ...conversationHistory,
-      { role: 'user', content: message }
-    ];
+    // Check if the conversation history already includes a system message
+    const hasSystemMessage = conversationHistory.some(msg => msg.role === 'system');
+    
+    // Format messages properly, ensuring we have the right structure
+    const messages = hasSystemMessage 
+      ? [...conversationHistory] // Use the provided system message
+      : [{ role: 'system', content: SYSTEM_CONTEXT }, ...conversationHistory]; // Add default system context
+    
+    // Add the current user message if it's not already included in the history
+    if (!messages.some(msg => msg.role === 'user' && msg.content === message)) {
+      messages.push({ role: 'user', content: message });
+    }
 
     try {
+      // Make the API request following OpenAI's guidelines
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
           model: 'gpt-3.5-turbo',
-          messages,
+          messages: messages,
           temperature: 0.7,
           max_tokens: 500
         },
@@ -72,10 +80,29 @@ class ChatService {
         }
       );
 
-      return response.data.choices[0].message.content;
+      // Extract the response content following the correct path
+      if (response.data && 
+          response.data.choices && 
+          response.data.choices.length > 0 && 
+          response.data.choices[0].message) {
+        return response.data.choices[0].message.content;
+      } else {
+        throw new Error('Unexpected response structure from OpenAI API');
+      }
     } catch (error) {
+      // Improved error handling with detailed logging
       console.error('OpenAI API Error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.error?.message || 'Failed to get response from OpenAI');
+      
+      // Check for specific error types
+      if (error.response?.status === 401) {
+        throw new Error('Authentication error: Please check your API key');
+      } else if (error.response?.status === 429) {
+        throw new Error('Rate limit exceeded: Too many requests to the OpenAI API');
+      } else if (error.response?.data?.error) {
+        throw new Error(`OpenAI API error: ${error.response.data.error.message}`);
+      } else {
+        throw new Error('Failed to get response from OpenAI. Please try again later.');
+      }
     }
   }
 

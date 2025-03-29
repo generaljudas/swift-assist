@@ -29,11 +29,23 @@ const Chat = () => {
 
     if (storedApiKey) {
       chatService.setApiKey(storedApiKey);
+      
+      // Add a greeting message when the chat loads
+      setMessages([{
+        role: 'assistant',
+        content: 'Hello! Welcome to Swift Assist. How can I help you today?'
+      }]);
     } else if (!authService.isAdmin()) {
       // For non-admin users, show an error message when API key is not set
       setMessages([{
         role: 'assistant',
         content: 'Chat is currently unavailable. Please try again later or contact support.'
+      }]);
+    } else {
+      // For admin users without API key, still show a greeting
+      setMessages([{
+        role: 'assistant',
+        content: 'Welcome, admin! Please set up your API key in the settings to enable the chat functionality.'
       }]);
     }
 
@@ -50,18 +62,41 @@ const Chat = () => {
     setIsLoading(true);
 
     try {
-      const response = await chatService.sendMessage(
-        inputMessage,
-        [{ role: 'system', content: context }, ...messages.map(m => ({ role: m.role, content: m.content }))]
-      );
+      // Prepare conversation history - only include previous messages, not the system context
+      // The chatService will add the system context internally
+      const conversationHistory = messages.map(m => ({ 
+        role: m.role, 
+        content: m.content 
+      }));
+      
+      // If we have a custom context set by the user, override the default system context
+      if (context && context.trim()) {
+        // Insert the custom context at the beginning of the conversation history
+        conversationHistory.unshift({ role: 'system', content: context });
+      }
+
+      const response = await chatService.sendMessage(inputMessage, conversationHistory);
+      
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
       console.error('Error:', error);
+      
+      // Display a more specific error message based on the error type
+      let errorMessage = 'Sorry, I encountered an error. Please try again or contact support if the issue persists.';
+      
+      if (error.message.includes('API key')) {
+        errorMessage = 'API key error: Please check your API key in settings.';
+      } else if (error.message.includes('rate limit')) {
+        errorMessage = 'Rate limit exceeded: Please try again in a few moments.';
+      } else if (error.message.includes('OpenAI API error')) {
+        errorMessage = error.message;
+      }
+      
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again or contact support if the issue persists.'
+          content: errorMessage
         }
       ]);
     } finally {
