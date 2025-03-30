@@ -5,10 +5,28 @@ import { authService } from '../services/authService';
 const UserDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('chat-context');
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const handleLogout = () => {
     authService.logout();
     navigate('/login');
+  };
+
+  const generateLink = () => {
+    // Generate a unique ID for the link
+    const uniqueId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // Create the link with the unique ID
+    const link = `${window.location.origin}/chat/${uniqueId}`;
+    setGeneratedLink(link);
+    setLinkCopied(false);
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedLink).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 3000);
+    });
   };
 
   const renderContent = () => {
@@ -145,6 +163,98 @@ const UserDashboard = () => {
             </div>
           </div>
         );
+      case 'create-link':
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Create a Link</h2>
+            <div className="space-y-6">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-medium text-blue-800 mb-2">Share Your Custom Chat</h3>
+                <p className="text-blue-700">
+                  Generate a unique link to share your customized chat with others. They'll be able to interact with the AI using your predefined context and settings.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Link Settings</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Chat Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter a name for your chat (e.g., Company Support)"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded" />
+                    <span>Use current context settings</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded" />
+                    <span>Use current theme settings</span>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Link Expiration
+                    </label>
+                    <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                      <option value="never">Never</option>
+                      <option value="1day">1 Day</option>
+                      <option value="7days">7 Days</option>
+                      <option value="30days">30 Days</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <button 
+                onClick={generateLink}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Generate Link
+              </button>
+              
+              {generatedLink && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="text-lg font-medium mb-2">Your Custom Chat Link</h3>
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={generatedLink}
+                      readOnly
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none"
+                    />
+                    <button
+                      onClick={copyToClipboard}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-r-lg hover:bg-gray-300 focus:outline-none"
+                    >
+                      {linkCopied ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Share this link with anyone you want to access your custom chat.
+                  </p>
+                </div>
+              )}
+              
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h3 className="text-lg font-medium text-yellow-800 mb-2">Important Notes</h3>
+                <ul className="list-disc list-inside space-y-2 text-yellow-700">
+                  <li>Each use of your shared link will consume tokens from your account</li>
+                  <li>You can track usage statistics in the Analytics section</li>
+                  <li>You can revoke access to any shared link at any time</li>
+                  <li>Consider setting an expiration date for sensitive or temporary chats</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -190,6 +300,14 @@ const UserDashboard = () => {
               }`}
             >
               Instructions
+            </button>
+            <button
+              onClick={() => setActiveTab('create-link')}
+              className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                activeTab === 'create-link' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+              }`}
+            >
+              Create a Link
             </button>
           </nav>
           <div className="absolute bottom-0 w-64 p-4 border-t border-gray-200">
