@@ -29,11 +29,23 @@ const Chat = () => {
 
     if (storedApiKey) {
       chatService.setApiKey(storedApiKey);
+      
+      // Add a greeting message when the chat loads
+      setMessages([{
+        role: 'assistant',
+        content: 'Hello! Welcome to Swift Assist. How can I help you today?'
+      }]);
     } else if (!authService.isAdmin()) {
       // For non-admin users, show an error message when API key is not set
       setMessages([{
         role: 'assistant',
         content: 'Chat is currently unavailable. Please try again later or contact support.'
+      }]);
+    } else {
+      // For admin users without API key, still show a greeting
+      setMessages([{
+        role: 'assistant',
+        content: 'Welcome, admin! Please set up your API key in the settings to enable the chat functionality.'
       }]);
     }
 
@@ -94,8 +106,8 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col relative bg-slate-300 min-h-screen">
-      {/* Navigation buttons */}
-      <div className="fixed top-4 left-4">
+      {/* Navigation buttons - added z-index to ensure they remain clickable when scrolling */}
+      <div className="fixed top-4 left-4 z-50">
         <button
           onClick={() => navigate('/')}
           className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
@@ -103,7 +115,7 @@ const Chat = () => {
           Home
         </button>
       </div>
-      <div className="fixed top-4 right-4">
+      <div className="fixed top-4 right-4 z-50">
         <Link
           to="/register"
           className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
