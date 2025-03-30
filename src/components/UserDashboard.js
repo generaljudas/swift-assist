@@ -7,6 +7,9 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('chat-context');
   const [generatedLink, setGeneratedLink] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
+  const [chatName, setChatName] = useState('');
+  const [customLinkName, setCustomLinkName] = useState('');
+  const [linkError, setLinkError] = useState('');
 
   const handleLogout = () => {
     authService.logout();
@@ -14,10 +17,24 @@ const UserDashboard = () => {
   };
 
   const generateLink = () => {
-    // Generate a unique ID for the link
-    const uniqueId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    // Create the link with the unique ID
-    const link = `${window.location.origin}/chat/${uniqueId}`;
+    // Validate the custom link name
+    if (!customLinkName.trim()) {
+      setLinkError('Please enter a custom link name');
+      return;
+    }
+
+    // Check if the custom link name contains only valid characters
+    const validLinkRegex = /^[a-zA-Z0-9-_]+$/;
+    if (!validLinkRegex.test(customLinkName)) {
+      setLinkError('Link name can only contain letters, numbers, hyphens, and underscores');
+      return;
+    }
+
+    // Clear any previous errors
+    setLinkError('');
+
+    // Create the link with the custom name
+    const link = `${window.location.origin}/chat/${customLinkName}`;
     setGeneratedLink(link);
     setLinkCopied(false);
   };
@@ -171,7 +188,7 @@ const UserDashboard = () => {
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h3 className="text-lg font-medium text-blue-800 mb-2">Share Your Custom Chat</h3>
                 <p className="text-blue-700">
-                  Generate a unique link to share your customized chat with others. They'll be able to interact with the AI using your predefined context and settings.
+                  Create a personalized link to share your customized chat with others. They'll be able to interact with the AI using your predefined context and settings.
                 </p>
               </div>
               
@@ -184,9 +201,35 @@ const UserDashboard = () => {
                     </label>
                     <input
                       type="text"
+                      value={chatName}
+                      onChange={(e) => setChatName(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Enter a name for your chat (e.g., Company Support)"
                     />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Custom Link Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center">
+                      <span className="bg-gray-100 px-3 py-2 text-gray-500 border border-r-0 border-gray-300 rounded-l-lg">
+                        {window.location.origin}/chat/
+                      </span>
+                      <input
+                        type="text"
+                        value={customLinkName}
+                        onChange={(e) => setCustomLinkName(e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="your-custom-link-name"
+                      />
+                    </div>
+                    {linkError && (
+                      <p className="mt-1 text-sm text-red-600">{linkError}</p>
+                    )}
+                    <p className="mt-1 text-sm text-gray-500">
+                      Use only letters, numbers, hyphens, and underscores (e.g., company-support, product_demo)
+                    </p>
                   </div>
                   
                   <div className="flex items-center space-x-2">
@@ -250,6 +293,7 @@ const UserDashboard = () => {
                   <li>You can track usage statistics in the Analytics section</li>
                   <li>You can revoke access to any shared link at any time</li>
                   <li>Consider setting an expiration date for sensitive or temporary chats</li>
+                  <li>Choose a memorable but secure custom link name to make it easy for users to access</li>
                 </ul>
               </div>
             </div>
