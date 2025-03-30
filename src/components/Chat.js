@@ -106,8 +106,8 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col relative bg-slate-300 min-h-screen">
-      {/* Navigation buttons */}
-      <div className="fixed top-4 left-4">
+      {/* Navigation buttons - added z-index to ensure they remain clickable when scrolling */}
+      <div className="fixed top-4 left-4 z-50">
         <button
           onClick={() => navigate('/')}
           className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
@@ -115,7 +115,7 @@ const Chat = () => {
           Home
         </button>
       </div>
-      <div className="fixed top-4 right-4">
+      <div className="fixed top-4 right-4 z-50">
         <Link
           to="/register"
           className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
