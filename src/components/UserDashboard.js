@@ -82,6 +82,69 @@ const UserDashboard = () => {
             </div>
           </div>
         );
+      case 'instructions':
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Instructions</h2>
+            <div className="space-y-6">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-medium text-blue-800 mb-2">Getting Started</h3>
+                <p className="text-blue-700">
+                  Welcome to our customizable chat! This guide will help you make the most of our chat features.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">How to Use Chat Context</h3>
+                <div className="pl-4 border-l-2 border-gray-200">
+                  <p className="mb-2">The Chat Context feature allows you to customize how the AI responds to your queries:</p>
+                  <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>Navigate to the <strong>Chat Context</strong> tab</li>
+                    <li>Enter specific information about your business, preferences, or requirements</li>
+                    <li>Click <strong>Save Context</strong> to apply your changes</li>
+                    <li>The AI will now use this context to provide more relevant responses</li>
+                  </ol>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Managing Your Tokens</h3>
+                <div className="pl-4 border-l-2 border-gray-200">
+                  <p className="mb-2">Tokens are used to power your chat interactions:</p>
+                  <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    <li>Check your current token balance in the <strong>Add Tokens</strong> tab</li>
+                    <li>Purchase additional tokens as needed</li>
+                    <li>Each message exchange consumes a small number of tokens</li>
+                    <li>You'll receive notifications when your balance is running low</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Customizing Your Chat Experience</h3>
+                <div className="pl-4 border-l-2 border-gray-200">
+                  <p className="mb-2">Personalize your chat interface in the <strong>Customize Chat</strong> tab:</p>
+                  <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    <li>Choose between light, dark, or system theme</li>
+                    <li>Enable or disable message sounds</li>
+                    <li>Adjust other preferences to suit your needs</li>
+                    <li>Click <strong>Save Preferences</strong> to apply your changes</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h3 className="text-lg font-medium text-yellow-800 mb-2">Tips for Better Results</h3>
+                <ul className="list-disc list-inside space-y-2 text-yellow-700">
+                  <li>Be specific in your questions to get more accurate responses</li>
+                  <li>Update your chat context regularly to reflect changes in your needs</li>
+                  <li>Use the chat history to reference previous conversations</li>
+                  <li>Provide feedback to help us improve the service</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -119,6 +182,14 @@ const UserDashboard = () => {
               }`}
             >
               Customize Chat
+            </button>
+            <button
+              onClick={() => setActiveTab('instructions')}
+              className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                activeTab === 'instructions' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+              }`}
+            >
+              Instructions
             </button>
           </nav>
           <div className="absolute bottom-0 w-64 p-4 border-t border-gray-200">
