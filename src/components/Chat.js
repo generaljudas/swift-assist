@@ -106,22 +106,24 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col relative bg-slate-300 min-h-screen">
-      {/* Navigation buttons - added z-index to ensure they remain clickable when scrolling */}
-      <div className="fixed top-4 left-4 z-50">
-        <button
-          onClick={() => navigate('/')}
-          className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
-        >
-          Home
-        </button>
-      </div>
-      <div className="fixed top-4 right-4 z-50">
-        <Link
-          to="/register"
-          className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
-        >
-          Sign Up
-        </Link>
+      {/* Navigation header with consistent positioning */}
+      <div className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-50">
+        <div>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
+          >
+            Home
+          </button>
+        </div>
+        <div>
+          <Link
+            to="/register"
+            className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
+          >
+            Sign Up
+          </Link>
+        </div>
       </div>
 
       {/* AnimatedText at the top */}

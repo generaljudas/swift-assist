@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 
-const Register = () => {
+const SignUp = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -21,16 +21,16 @@ const Register = () => {
       await authService.register(username, email);
       navigate('/dashboard');
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      setError('Sign Up failed. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col justify-center relative">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-8">
-            Register
+            Sign Up
           </h1>
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
@@ -95,19 +95,24 @@ const Register = () => {
                 type="submit"
                 className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                Register
+                Sign Up
               </button>
               <div className="mt-4 text-center">
-                <a href="/login" className="text-blue-600 hover:text-blue-500">
+                <Link to="/login" className="text-blue-600 hover:text-blue-500">
                   Already have an account? Login
-                </a>
+                </Link>
               </div>
             </div>
           </form>
         </div>
       </div>
+      <div className="absolute bottom-8 w-full text-center">
+        <Link to="/" className="text-blue-600 hover:text-blue-500 font-medium">
+          Back to Home
+        </Link>
+      </div>
     </div>
   );
 };
 
-export default Register;
+export default SignUp;

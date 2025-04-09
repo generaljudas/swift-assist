@@ -5,6 +5,7 @@ import Register from './components/Register';
 import Chat from './components/Chat';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
+import Contact from './components/Contact';
 import { authService } from './services/authService';
 
 // Protected route wrapper for admin-only routes
@@ -45,8 +46,8 @@ const Navigation = () => {
   };
 
   return (
-    <>
-      <div className="fixed top-4 left-4">
+    <div className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 w-full">
+      <div>
         <Link
           to="/contact"
           className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
@@ -54,7 +55,7 @@ const Navigation = () => {
           Contact
         </Link>
       </div>
-      <div className="fixed top-4 right-4 flex space-x-4">
+      <div className="flex space-x-4">
         {isLoggedIn ? (
           <>
             <button
@@ -81,7 +82,7 @@ const Navigation = () => {
           </Link>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
@@ -107,9 +108,9 @@ const App = () => {
                   [@media(min-aspect-ratio:16/9)]:-translate-y-[10%]
                   [@media(max-aspect-ratio:16/9)]:scale-[1.1]
                   [@media(max-aspect-ratio:16/9)]:-translate-y-[5%]"
-                data-testid="background-video"
+                data-testid="background"
               >
-                <source src="/background-video.mp4" type="video/mp4" data-testid="video-source" />
+                <source src="/background.mp4" type="video/mp4" data-testid="video-source" />
               </video>
             </div>
             <Navigation />
@@ -122,7 +123,7 @@ const App = () => {
               </p>
               <div className="mt-8">
                 <Link
-                  to={isLoggedIn ? "/chat" : "/login"}
+                  to="/chat"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                 >
                   Get Started
@@ -134,11 +135,7 @@ const App = () => {
         
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/chat" element={
-          <AuthRoute>
-            <Chat />
-          </AuthRoute>
-        } />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/dashboard" element={
           <AuthRoute>
             <UserDashboard />
@@ -160,7 +157,7 @@ const App = () => {
             </AuthRoute>
           } 
         />
-        <Route path="/contact" element={<div>Contact Page</div>} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </Router>
   );
