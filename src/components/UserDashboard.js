@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { userService } from '../services/userService';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -37,6 +38,17 @@ const UserDashboard = () => {
     const link = `${window.location.origin}/chat/${customLinkName}`;
     setGeneratedLink(link);
     setLinkCopied(false);
+    
+    // Add link to user's botLinks in userService
+    const currentUser = authService.currentUserValue;
+    if (currentUser && currentUser.email) {
+      const users = userService.getAllUsers();
+      const user = users.find(u => u.email === currentUser.email);
+      if (user) {
+        const updatedLinks = [...(user.botLinks || []), link];
+        userService.updateUser(user.id, { botLinks: updatedLinks });
+      }
+    }
   };
 
   const copyToClipboard = () => {

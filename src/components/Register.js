@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { userService } from '../services/userService';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -19,6 +20,15 @@ const SignUp = () => {
 
     try {
       await authService.register(username, email);
+      // Add user to userService with default values
+      userService.addUser({
+        name: username,
+        email: email,
+        company: 'New User',
+        botLinks: [],
+        location: '',
+        businessType: 'Individual'
+      });
       navigate('/dashboard');
     } catch (error) {
       setError('Sign Up failed. Please try again.');
