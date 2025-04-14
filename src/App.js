@@ -6,6 +6,7 @@ import Chat from './components/Chat';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
 import Contact from './components/Contact';
+import Clouds from './components/Clouds';
 import { authService } from './services/authService';
 
 // Protected route wrapper for admin-only routes
@@ -94,6 +95,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={
           <div className="min-h-screen flex flex-col justify-center relative">
+            <Clouds />
             <div className="fixed inset-0 -z-50 w-full h-full overflow-hidden">
               <video 
                 autoPlay
