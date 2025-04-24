@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
+import GoogleOAuthButton from './GoogleOAuthButton';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
   const [error, setError] = useState('');
 
@@ -19,8 +21,9 @@ const SignUp = () => {
     }
 
     try {
-      await authService.register(username, email);
-      // Add user to userService with default values
+      await authService.register(username, email, password);
+      // User will be created in Supabase via the register method
+      // but we also want to add the user to our userService for additional metadata
       userService.addUser({
         name: username,
         email: email,
@@ -33,6 +36,17 @@ const SignUp = () => {
     } catch (error) {
       setError('Sign Up failed. Please try again.');
     }
+  };
+
+  const handleGoogleSuccess = () => {
+    // Google OAuth flow will redirect user to Google and back
+    // The actual state change will happen in the auth callback route
+    console.log('Google authentication initiated');
+  };
+
+  const handleGoogleError = (error) => {
+    setError('Google sign up failed. Please try again.');
+    console.error('Google sign up error:', error);
   };
 
   return (
@@ -84,6 +98,23 @@ const SignUp = () => {
             </div>
 
             <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
               <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-700">
                 Confirm Email
               </label>
@@ -107,6 +138,24 @@ const SignUp = () => {
               >
                 Sign Up
               </button>
+              
+              <div className="mt-4 relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <GoogleOAuthButton 
+                  className="w-full" 
+                  onSuccess={handleGoogleSuccess} 
+                  onError={handleGoogleError}
+                />
+              </div>
+              
               <div className="mt-4 text-center">
                 <Link to="/login" className="text-blue-600 hover:text-blue-500">
                   Already have an account? Login

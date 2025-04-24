@@ -1,21 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
-
-// Initialize Supabase client
-const supabaseUrl = 'https://ndjikafopssxqkoxkhzc.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kamlrYWZvcHNzeHFrb3hraHpjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDMwOTkyMiwiZXhwIjoyMDU5ODg1OTIyfQ.6mrr3P4VgW5_rsMLL59v5uS-IDx1D-T3taR1aFdGSEw';
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true
-  },
-  global: {
-    headers: {
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    }
-  }
-});
 
 class DatabaseService {
   constructor() {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
+import GoogleOAuthButton from './GoogleOAuthButton';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,6 +21,17 @@ const Login = () => {
     } catch (error) {
       setError('Invalid credentials');
     }
+  };
+
+  const handleGoogleSuccess = () => {
+    // Google OAuth flow will redirect user to Google and back
+    // The actual state change will happen in the auth callback route
+    console.log('Google authentication initiated');
+  };
+
+  const handleGoogleError = (error) => {
+    setError('Google sign in failed. Please try again.');
+    console.error('Google sign in error:', error);
   };
 
   return (
@@ -77,6 +89,24 @@ const Login = () => {
               >
                 Login
               </button>
+              
+              <div className="mt-4 relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <GoogleOAuthButton 
+                  className="w-full" 
+                  onSuccess={handleGoogleSuccess} 
+                  onError={handleGoogleError}
+                />
+              </div>
+              
               <div className="mt-4 text-center">
                 <Link to="/register" className="text-blue-600 hover:text-blue-500">
                   Don't have an account? Register

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -8,6 +8,53 @@ import UserDashboard from './components/UserDashboard';
 import Contact from './components/Contact';
 import Clouds from './components/Clouds';
 import { authService } from './services/authService';
+
+// OAuth Callback handler
+const AuthCallback = () => {
+  const navigate = useNavigate();
+  const [error, setError] = React.useState(null);
+
+  useEffect(() => {
+    const handleCallback = async () => {
+      try {
+        const result = await authService.handleAuthCallback();
+        if (result?.user) {
+          if (authService.isAdmin()) {
+            navigate('/admin');
+          } else {
+            navigate('/dashboard');
+          }
+        } else {
+          navigate('/login');
+        }
+      } catch (err) {
+        console.error('Error handling auth callback:', err);
+        setError('Authentication failed. Please try again.');
+        setTimeout(() => navigate('/login'), 3000);
+      }
+    };
+    
+    handleCallback();
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          {error ? 'Authentication Error' : 'Completing Authentication...'}
+        </h2>
+        {error ? (
+          <p className="text-red-600 mb-4 text-center">{error}</p>
+        ) : (
+          <p className="text-gray-600 mb-4 text-center">Please wait while we complete your authentication.</p>
+        )}
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Protected route wrapper for admin-only routes
 const AdminRoute = ({ children }) => {
@@ -160,6 +207,9 @@ const App = () => {
           } 
         />
         <Route path="/contact" element={<Contact />} />
+        
+        {/* OAuth Callback Route */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </Router>
   );
