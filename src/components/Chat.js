@@ -13,6 +13,14 @@ const Chat = () => {
   const [context, setContext] = useState('');
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Add this effect to focus the input when messages change
+  useEffect(() => {
+    if (!isLoading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [messages, isLoading]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,6 +58,11 @@ const Chat = () => {
     }
 
     setContext(storedContext);
+    
+    // Focus the input field when component mounts
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }, [navigate]);
 
   const handleSendMessage = async (e) => {
@@ -57,6 +70,8 @@ const Chat = () => {
     if (!inputMessage.trim()) return;
 
     const userMessage = { role: 'user', content: inputMessage };
+    const currentInputMessage = inputMessage;
+    
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
@@ -75,7 +90,7 @@ const Chat = () => {
         conversationHistory.unshift({ role: 'system', content: context });
       }
 
-      const response = await chatService.sendMessage(inputMessage, conversationHistory);
+      const response = await chatService.sendMessage(currentInputMessage, conversationHistory);
       
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
@@ -101,6 +116,19 @@ const Chat = () => {
       ]);
     } finally {
       setIsLoading(false);
+      
+      // Try multiple approaches to ensure focus returns to input
+      if (inputRef.current) {
+        // Immediate attempt
+        inputRef.current.focus();
+        
+        // Delayed attempt with setTimeout
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.focus();
+          }
+        }, 50);
+      }
     }
   };
 
@@ -173,12 +201,14 @@ const Chat = () => {
           <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
             <div className="flex space-x-4">
               <input
+                ref={inputRef}
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask a question about our services..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 disabled={isLoading}
+                autoFocus
               />
               <button
                 type="submit"
