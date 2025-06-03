@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
-import GoogleOAuthButton from './GoogleOAuthButton';
+// import GoogleOAuthButton from './GoogleOAuthButton';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -148,13 +148,13 @@ const SignUp = () => {
                 </div>
               </div>
               
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <GoogleOAuthButton 
                   className="w-full" 
                   onSuccess={handleGoogleSuccess} 
                   onError={handleGoogleError}
                 />
-              </div>
+              </div> */}
               
               <div className="mt-4 text-center">
                 <Link to="/login" className="text-blue-600 hover:text-blue-500">

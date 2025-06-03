@@ -1,12 +1,12 @@
-import { databaseService } from './databaseService';
-
 class UserService {
   async getAllUsers() {
     try {
-      const users = await databaseService.getUsers();
+      const response = await fetch('/api/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
       
       // Format the data to match the expected structure in the UI
-      return users.map(user => ({
+      return data.map(user => ({
         id: user.id,
         name: user.name,
         email: user.email,
@@ -25,9 +25,9 @@ class UserService {
 
   async getUserById(id) {
     try {
-      const user = await databaseService.getUserById(id);
-      
-      if (!user) return null;
+      const response = await fetch(`/api/users/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch user');
+      const user = await response.json();
       
       return {
         id: user.id,
@@ -48,9 +48,9 @@ class UserService {
 
   async getUserByEmail(email) {
     try {
-      const user = await databaseService.getUserByEmail(email);
-      
-      if (!user) return null;
+      const response = await fetch(`/api/users/email/${email}`);
+      if (!response.ok) throw new Error('Failed to fetch user by email');
+      const user = await response.json();
       
       return {
         id: user.id,
@@ -71,16 +71,22 @@ class UserService {
 
   async addUser(userData) {
     try {
-      const user = await databaseService.createUser({
-        name: userData.name,
-        email: userData.email,
-        company: userData.company,
-        botLinks: userData.botLinks || [],
-        location: userData.location || '',
-        businessType: userData.businessType || '',
-        role: 'user'
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          company: userData.company,
+          botLinks: userData.botLinks || [],
+          location: userData.location || '',
+          businessType: userData.businessType || '',
+          role: 'user'
+        })
       });
+      if (!response.ok) throw new Error('Failed to add user');
       
+      const user = await response.json();
       return this.getUserById(user.id);
     } catch (error) {
       console.error('Error adding user:', error);
@@ -90,7 +96,13 @@ class UserService {
 
   async updateUser(id, updates) {
     try {
-      await databaseService.updateUser(id, updates);
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (!response.ok) throw new Error('Failed to update user');
+      
       return this.getUserById(id);
     } catch (error) {
       console.error('Error updating user:', error);
@@ -100,7 +112,13 @@ class UserService {
 
   async addTokens(userId, amount) {
     try {
-      await databaseService.addTokens(userId, amount);
+      const response = await fetch(`/api/users/${userId}/tokens`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      if (!response.ok) throw new Error('Failed to add tokens');
+      
       return this.getUserById(userId);
     } catch (error) {
       console.error('Error adding tokens:', error);
@@ -110,7 +128,12 @@ class UserService {
 
   async removeUser(id) {
     try {
-      return await databaseService.deleteUser(id);
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to remove user');
+      
+      return true;
     } catch (error) {
       console.error('Error removing user:', error);
       throw new Error('Failed to remove user');

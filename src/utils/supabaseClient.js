@@ -1,1 +1,0 @@
-// File intentionally left blank. Supabase is not used in this project.

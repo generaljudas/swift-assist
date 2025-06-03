@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
-import GoogleOAuthButton from './GoogleOAuthButton';
+// import GoogleOAuthButton from './GoogleOAuthButton';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,16 +23,16 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = () => {
-    // Google OAuth flow will redirect user to Google and back
-    // The actual state change will happen in the auth callback route
-    console.log('Google authentication initiated');
-  };
+  // const handleGoogleSuccess = () => {
+  //   // Google OAuth flow will redirect user to Google and back
+  //   // The actual state change will happen in the auth callback route
+  //   console.log('Google authentication initiated');
+  // };
 
-  const handleGoogleError = (error) => {
-    setError('Google sign in failed. Please try again.');
-    console.error('Google sign in error:', error);
-  };
+  // const handleGoogleError = (error) => {
+  //   setError('Google sign in failed. Please try again.');
+  //   console.error('Google sign in error:', error);
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col justify-center relative">
@@ -99,13 +99,13 @@ const Login = () => {
                 </div>
               </div>
               
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <GoogleOAuthButton 
                   className="w-full" 
                   onSuccess={handleGoogleSuccess} 
                   onError={handleGoogleError}
                 />
-              </div>
+              </div> */}
               
               <div className="mt-4 text-center">
                 <Link to="/register" className="text-blue-600 hover:text-blue-500">
