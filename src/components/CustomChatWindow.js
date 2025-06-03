@@ -4,9 +4,18 @@ import { chatService } from '../services/chatService';
 import { settingsService } from '../services/settingsService';
 
 // This is a fully isolated chat window for the dashboard preview, with its own context
+const getGreetingFromContext = (context) => {
+  if (!context || !context.trim()) return 'Hello! How can I help you today?';
+  // Use the first sentence or up to 120 chars as a greeting
+  const firstSentence = context.split(/[.!?]/)[0];
+  return firstSentence.length > 10 ? firstSentence.trim() : 'Hello! How can I help you today?';
+};
+
 const CustomChatWindow = ({ initialContext = '', theme = 'light' }) => {
+  // Get user context from localStorage or prop
+  const userContext = (typeof window !== 'undefined' && localStorage.getItem('user_custom_chat_context')) || initialContext || '';
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Welcome to your custom chat preview! This chat is separate from the main business chat.' }
+    { role: 'assistant', content: getGreetingFromContext(userContext) }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);

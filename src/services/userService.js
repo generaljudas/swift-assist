@@ -116,6 +116,25 @@ class UserService {
       throw new Error('Failed to remove user');
     }
   }
+
+  // Get custom links for a user
+  async getCustomLinks(userId) {
+    const response = await fetch(`/api/users/${userId}/custom-links`);
+    if (!response.ok) throw new Error('Failed to fetch custom links');
+    const data = await response.json();
+    return data.custom_links || [];
+  }
+
+  // Update custom links for a user
+  async updateCustomLinks(userId, customLinks) {
+    const response = await fetch(`/api/users/${userId}/custom-links`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ custom_links: customLinks })
+    });
+    if (!response.ok) throw new Error('Failed to update custom links');
+    return true;
+  }
 }
 
 export const userService = new UserService();

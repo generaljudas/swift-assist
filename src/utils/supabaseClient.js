@@ -1,1 +1,1 @@
-// Supabase client removed. No longer needed.
+// File intentionally left blank. Supabase is not used in this project.

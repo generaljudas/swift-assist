@@ -84,6 +84,28 @@ app.get('/api/users/:id', async (req, res) => {
   }
 });
 
+// Get user's custom links
+app.get('/api/users/:id/custom-links', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT custom_links FROM users WHERE id = $1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    res.json({ custom_links: result.rows[0].custom_links || [] });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update user's custom links
+app.put('/api/users/:id/custom-links', async (req, res) => {
+  try {
+    const { custom_links } = req.body;
+    await pool.query('UPDATE users SET custom_links = $1 WHERE id = $2', [custom_links, req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Express server running on port ${port}`);
 });

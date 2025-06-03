@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
@@ -15,13 +15,32 @@ const UserDashboard = () => {
   const [customLinkName, setCustomLinkName] = useState('');
   const [linkError, setLinkError] = useState('');
   const [userContext, setUserContext] = useState(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
+  const [customLinks, setCustomLinks] = useState([]);
+  const [loadingLinks, setLoadingLinks] = useState(true);
 
   const handleLogout = () => {
     authService.logout();
     navigate('/login');
   };
 
-  const generateLink = () => {
+  useEffect(() => {
+    // Load custom links from backend on mount
+    const fetchLinks = async () => {
+      const currentUser = authService.currentUserValue;
+      if (currentUser && currentUser.id) {
+        try {
+          const links = await userService.getCustomLinks(currentUser.id);
+          setCustomLinks(links);
+        } catch (e) {
+          setCustomLinks([]);
+        }
+      }
+      setLoadingLinks(false);
+    };
+    fetchLinks();
+  }, []);
+
+  const generateLink = async () => {
     // Validate the custom link name
     if (!customLinkName.trim()) {
       setLinkError('Please enter a custom link name');
@@ -43,15 +62,12 @@ const UserDashboard = () => {
     setGeneratedLink(link);
     setLinkCopied(false);
     
-    // Add link to user's botLinks in userService
+    // Save to backend
     const currentUser = authService.currentUserValue;
-    if (currentUser && currentUser.email) {
-      const users = userService.getAllUsers();
-      const user = users.find(u => u.email === currentUser.email);
-      if (user) {
-        const updatedLinks = [...(user.botLinks || []), link];
-        userService.updateUser(user.id, { botLinks: updatedLinks });
-      }
+    if (currentUser && currentUser.id) {
+      const updatedLinks = [...customLinks, link];
+      await userService.updateCustomLinks(currentUser.id, updatedLinks);
+      setCustomLinks(updatedLinks);
     }
   };
 
@@ -189,120 +205,64 @@ const UserDashboard = () => {
         );
       case 'create-link':
         return (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Create a Link</h2>
-            <div className="space-y-6">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h3 className="text-lg font-medium text-blue-800 mb-2">Share Your Custom Chat</h3>
-                <p className="text-blue-700">
-                  Create a personalized link to share your customized chat with others. They'll be able to interact with the AI using your predefined context and settings.
-                </p>
+          <div className="p-6 max-w-xl mx-auto">
+            <h2 className="text-xl font-semibold mb-4">Create a Public Chat Link</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Custom Link Name <span className="text-red-500">*</span></label>
+              <div className="flex items-center">
+                <span className="bg-gray-100 px-3 py-2 text-gray-500 border border-r-0 border-gray-300 rounded-l-lg">
+                  {window.location.origin}/chat/
+                </span>
+                <input
+                  type="text"
+                  value={customLinkName}
+                  onChange={e => setCustomLinkName(e.target.value)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="your-custom-link-name"
+                />
               </div>
-              
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Link Settings</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Chat Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={chatName}
-                      onChange={(e) => setChatName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter a name for your chat (e.g., Company Support)"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Custom Link Name <span className="text-red-500">*</span>
-                    </label>
-                    <div className="flex items-center">
-                      <span className="bg-gray-100 px-3 py-2 text-gray-500 border border-r-0 border-gray-300 rounded-l-lg">
-                        {window.location.origin}/chat/
-                      </span>
-                      <input
-                        type="text"
-                        value={customLinkName}
-                        onChange={(e) => setCustomLinkName(e.target.value)}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="your-custom-link-name"
-                      />
-                    </div>
-                    {linkError && (
-                      <p className="mt-1 text-sm text-red-600">{linkError}</p>
-                    )}
-                    <p className="mt-1 text-sm text-gray-500">
-                      Use only letters, numbers, hyphens, and underscores (e.g., company-support, product_demo)
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded" />
-                    <span>Use current context settings</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded" />
-                    <span>Use current theme settings</span>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Link Expiration
-                    </label>
-                    <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                      <option value="never">Never</option>
-                      <option value="1day">1 Day</option>
-                      <option value="7days">7 Days</option>
-                      <option value="30days">30 Days</option>
-                    </select>
-                  </div>
+              {linkError && <p className="mt-1 text-sm text-red-600">{linkError}</p>}
+              <p className="mt-1 text-sm text-gray-500">Use only letters, numbers, hyphens, and underscores.</p>
+            </div>
+            <button
+              onClick={generateLink}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              disabled={loadingLinks}
+            >
+              Generate Link
+            </button>
+            {generatedLink && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="text-lg font-medium mb-2">Your Custom Chat Link</h3>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    value={generatedLink}
+                    readOnly
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none"
+                  />
+                  <button
+                    onClick={copyToClipboard}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-r-lg hover:bg-gray-300 focus:outline-none"
+                  >
+                    {linkCopied ? "Copied!" : "Copy"}
+                  </button>
                 </div>
+                <p className="mt-2 text-sm text-gray-500">Share this link with anyone you want to access your custom chat.</p>
               </div>
-              
-              <button 
-                onClick={generateLink}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Generate Link
-              </button>
-              
-              {generatedLink && (
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="text-lg font-medium mb-2">Your Custom Chat Link</h3>
-                  <div className="flex items-center">
-                    <input
-                      type="text"
-                      value={generatedLink}
-                      readOnly
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none"
-                    />
-                    <button
-                      onClick={copyToClipboard}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-r-lg hover:bg-gray-300 focus:outline-none"
-                    >
-                      {linkCopied ? "Copied!" : "Copy"}
-                    </button>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Share this link with anyone you want to access your custom chat.
-                  </p>
-                </div>
-              )}
-              
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <h3 className="text-lg font-medium text-yellow-800 mb-2">Important Notes</h3>
-                <ul className="list-disc list-inside space-y-2 text-yellow-700">
-                  <li>Each use of your shared link will consume tokens from your account</li>
-                  <li>You can track usage statistics in the Analytics section</li>
-                  <li>You can revoke access to any shared link at any time</li>
-                  <li>Consider setting an expiration date for sensitive or temporary chats</li>
-                  <li>Choose a memorable but secure custom link name to make it easy for users to access</li>
+            )}
+            <div className="mt-8">
+              <h3 className="text-lg font-medium mb-2">Your Saved Links</h3>
+              {loadingLinks ? (
+                <div>Loading...</div>
+              ) : (
+                <ul className="list-disc pl-6">
+                  {customLinks.map((l, i) => (
+                    <li key={i} className="mb-1"><a href={l} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{l}</a></li>
+                  ))}
+                  {customLinks.length === 0 && <li className="text-gray-500">No links created yet.</li>}
                 </ul>
-              </div>
+              )}
             </div>
           </div>
         );

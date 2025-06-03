@@ -22,7 +22,7 @@ const SignUp = () => {
 
     try {
       await authService.register(username, email, password);
-      // User will be created in Supabase via the register method
+      // User will be created in the backend via the register method
       // but we also want to add the user to our userService for additional metadata
       userService.addUser({
         name: username,
