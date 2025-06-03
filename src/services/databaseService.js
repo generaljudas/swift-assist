@@ -1,45 +1,13 @@
-// Database service (Supabase removed)
-import { v4 as uuidv4 } from 'uuid';
+// This file is now a placeholder. All database logic is handled by the Express backend.
+// You can safely remove or ignore this file.
 
 class DatabaseService {
-  constructor() {
-    // Supabase removed
-    this.tables = {
-      users: 'users',
-      companies: 'companies',
-      chatTemplates: 'chat_templates'
-    };
-  }
-
-  async init() {
-    // No-op (Supabase removed)
-    console.log('Database service initialized (Supabase removed)');
-  }
-
-  async getUsers() {
-    // Implement your own logic here (Supabase removed)
-    return [];
-  }
-
-  async getUserById(id) {
-    // Implement your own logic here (Supabase removed)
-    return null;
-  }
-
-  async getUserByEmail(email) {
-    // Implement your own logic here (Supabase removed)
-    return null;
-  }
-
-  async createUserIfNotExists(userData) {
-    // Implement your own logic here (Supabase removed)
-    return null;
-  }
-
-  async createUser(userData) {
-    // Implement your own logic here (Supabase removed)
-    return null;
-  }
+  async getUsers() { return []; }
+  async getUserById(id) { return null; }
+  async getUserByEmail(email) { return null; }
+  async getUserByUsername(username) { return null; }
+  async createUserIfNotExists(userData) { return null; }
+  async createUser(userData) { return null; }
 }
 
 export const databaseService = new DatabaseService();

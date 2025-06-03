@@ -1,10 +1,6 @@
 import { databaseService } from './databaseService';
 
 class UserService {
-  constructor() {
-    databaseService.init();
-  }
-
   async getAllUsers() {
     try {
       const users = await databaseService.getUsers();

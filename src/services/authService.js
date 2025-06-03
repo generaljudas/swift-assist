@@ -1,4 +1,6 @@
-// Authentication service (Supabase removed)
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
 
 class AuthService {
   constructor() {
@@ -23,34 +25,28 @@ class AuthService {
     }));
   }
 
-  async register(username, email, password) {
-    // Implement your own registration logic here (Supabase removed)
-    this.isAuthenticated = true;
-    this.user = { id: Date.now(), email, username, role: 'user' };
-    this.saveAuthState();
-    return { user: this.user };
-  }
-
-  async login(email, password) {
-    // Implement your own login logic here (Supabase removed)
-    if ((email === 'admin' && password === 'admin123') || (email === 'user' && password === 'user123')) {
+  async login(username, password) {
+    try {
+      const res = await axios.post(`${API_URL}/login`, { username, password });
       this.isAuthenticated = true;
-      this.user = { username: email, email: `${email}@example.com`, role: email === 'admin' ? 'admin' : 'user' };
+      this.user = res.data;
       this.saveAuthState();
       return { user: this.user };
+    } catch (err) {
+      throw new Error('Invalid credentials');
     }
-    // Fallback: check localStorage or custom logic
-    throw new Error('Login failed. Supabase removed.');
   }
 
-  async signInWithGoogle() {
-    // Google OAuth removed (Supabase removed)
-    throw new Error('Google sign-in not supported. Supabase removed.');
-  }
-
-  async handleAuthCallback() {
-    // No-op (Supabase removed)
-    return null;
+  async register(username, email, password) {
+    try {
+      const res = await axios.post(`${API_URL}/register`, { username, email, password });
+      this.isAuthenticated = true;
+      this.user = res.data;
+      this.saveAuthState();
+      return { user: this.user };
+    } catch (err) {
+      throw new Error('Registration failed');
+    }
   }
 
   async logout() {
