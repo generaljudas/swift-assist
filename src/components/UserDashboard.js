@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
+import CustomChatWindow from './CustomChatWindow';
+
+const USER_CHAT_CONTEXT_KEY = 'user_custom_chat_context';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -11,6 +14,7 @@ const UserDashboard = () => {
   const [chatName, setChatName] = useState('');
   const [customLinkName, setCustomLinkName] = useState('');
   const [linkError, setLinkError] = useState('');
+  const [userContext, setUserContext] = useState(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
 
   const handleLogout = () => {
     authService.logout();
@@ -58,6 +62,15 @@ const UserDashboard = () => {
     });
   };
 
+  const handleUserContextChange = (e) => {
+    setUserContext(e.target.value);
+    localStorage.setItem(USER_CHAT_CONTEXT_KEY, e.target.value);
+  };
+
+  const handleSaveUserContext = () => {
+    localStorage.setItem(USER_CHAT_CONTEXT_KEY, userContext);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'chat-context':
@@ -68,11 +81,13 @@ const UserDashboard = () => {
               rows={6}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter context for the chat AI"
+              value={userContext}
+              onChange={handleUserContextChange}
             />
             <p className="mt-2 text-sm text-gray-500">
-              This context will guide how the AI responds to your questions.
+              This context will guide how the AI responds to your questions in the Preview Chat tab.
             </p>
-            <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onClick={handleSaveUserContext} className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
               Save Context
             </button>
           </div>
@@ -102,30 +117,10 @@ const UserDashboard = () => {
       case 'customize':
         return (
           <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Customize Chat</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Chat Theme
-                </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="system">System</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message Sound
-                </label>
-                <div className="flex items-center">
-                  <input type="checkbox" className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded" />
-                  <span className="ml-2">Enable message sounds</span>
-                </div>
-              </div>
-              <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Save Preferences
-              </button>
+            <h2 className="text-xl font-semibold mb-4">Preview Chat</h2>
+            <div className="mt-8">
+              <h3 className="text-lg font-medium mb-2">Live Custom Chat Preview</h3>
+              <CustomChatWindow />
             </div>
           </div>
         );
@@ -347,7 +342,7 @@ const UserDashboard = () => {
                 activeTab === 'customize' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
               }`}
             >
-              Customize Chat
+              Preview Chat
             </button>
             <button
               onClick={() => setActiveTab('instructions')}
