@@ -12,19 +12,40 @@ const SignUp = () => {
   const [confirmEmail, setConfirmEmail] = useState('');
   const [error, setError] = useState('');
 
+  const validateEmail = (email) => {
+    // Simple email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePassword = (password) => {
+    // At least 8 chars, 1 letter, 1 number
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError('');
+    if (!username.trim()) {
+      setError('Username is required');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError('Invalid email format');
+      return;
+    }
     if (email !== confirmEmail) {
       setError('Emails do not match');
       return;
     }
-
+    if (!validatePassword(password)) {
+      setError('Password must be at least 8 characters and contain a letter and a number');
+      return;
+    }
     try {
       await authService.register(username, email, password);
       // User will be created in the backend via the register method
       // but we also want to add the user to our userService for additional metadata
-      userService.addUser({
+      await userService.addUser({
         name: username,
         email: email,
         company: 'New User',
@@ -34,7 +55,7 @@ const SignUp = () => {
       });
       navigate('/dashboard');
     } catch (error) {
-      setError('Sign Up failed. Please try again.');
+      setError(error.message || 'Sign Up failed. Please try again.');
     }
   };
 

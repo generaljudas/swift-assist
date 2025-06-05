@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+function handleApiError(error, defaultMsg) {
+  if (error?.response?.data?.error) {
+    throw new Error(error.response.data.error);
+  }
+  if (error?.message) {
+    throw new Error(error.message);
+  }
+  throw new Error(defaultMsg);
+}
 
 class AuthService {
   constructor() {
@@ -26,18 +36,22 @@ class AuthService {
   }
 
   async login(username, password) {
+    if (!username || !password) throw new Error('Username and password are required');
     try {
-      const res = await axios.post(`${API_URL}/login`, { username, password });
+      // Fetch CSRF token first
+      await axios.get(`${API_URL}/csrf-token`, { withCredentials: true });
+      const res = await axios.post(`${API_URL}/login`, { username, password }, { withCredentials: true });
       this.isAuthenticated = true;
       this.user = res.data;
       this.saveAuthState();
       return { user: this.user };
     } catch (err) {
-      throw new Error('Invalid credentials');
+      handleApiError(err, 'Invalid credentials');
     }
   }
 
   async register(username, email, password) {
+    if (!username || !email || !password) throw new Error('All fields are required');
     try {
       const res = await axios.post(`${API_URL}/register`, { username, email, password });
       this.isAuthenticated = true;
@@ -45,7 +59,7 @@ class AuthService {
       this.saveAuthState();
       return { user: this.user };
     } catch (err) {
-      throw new Error('Registration failed');
+      handleApiError(err, 'Registration failed');
     }
   }
 
@@ -53,6 +67,8 @@ class AuthService {
     this.isAuthenticated = false;
     this.user = null;
     localStorage.removeItem('auth');
+    // Optionally, clear the cookie on the backend
+    await axios.post(`${API_URL}/logout`, {}, { withCredentials: true }).catch(() => {});
   }
 
   isAdmin() {

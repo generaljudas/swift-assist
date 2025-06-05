@@ -71,6 +71,20 @@ const Users = () => {
   };
 
   const handleSubmit = async () => {
+    setError(null);
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return;
+    }
+    if (formData.company && formData.company.length > 100) {
+      setError('Company name is too long');
+      return;
+    }
+    if (formData.botLinks && formData.botLinks.split(',').some(link => link.length > 100)) {
+      setError('Each bot link must be less than 100 characters');
+      return;
+    }
+
     try {
       const userData = {
         name: formData.name,

@@ -1,11 +1,18 @@
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+function handleApiError(error, defaultMsg) {
+  if (error && error.message) {
+    throw new Error(error.message);
+  }
+  throw new Error(defaultMsg);
+}
+
 class UserService {
   async getAllUsers() {
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
-      
-      // Format the data to match the expected structure in the UI
       return data.map(user => ({
         id: user.id,
         name: user.name,
@@ -18,17 +25,15 @@ class UserService {
         totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
       }));
     } catch (error) {
-      console.error('Error fetching users:', error);
-      throw new Error('Failed to fetch users');
+      handleApiError(error, 'Failed to fetch users');
     }
   }
 
   async getUserById(id) {
     try {
-      const response = await fetch(`/api/users/${id}`);
+      const response = await fetch(`${API_URL}/users/${id}`, { credentials: 'include' });
       if (!response.ok) throw new Error('Failed to fetch user');
       const user = await response.json();
-      
       return {
         id: user.id,
         name: user.name,
@@ -41,17 +46,15 @@ class UserService {
         totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
       };
     } catch (error) {
-      console.error('Error fetching user:', error);
-      throw new Error('Failed to fetch user');
+      handleApiError(error, 'Failed to fetch user');
     }
   }
 
   async getUserByEmail(email) {
     try {
-      const response = await fetch(`/api/users/email/${email}`);
+      const response = await fetch(`${API_URL}/users/email/${email}`, { credentials: 'include' });
       if (!response.ok) throw new Error('Failed to fetch user by email');
       const user = await response.json();
-      
       return {
         id: user.id,
         name: user.name,
@@ -64,16 +67,18 @@ class UserService {
         totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
       };
     } catch (error) {
-      console.error('Error fetching user by email:', error);
-      throw new Error('Failed to fetch user by email');
+      handleApiError(error, 'Failed to fetch user by email');
     }
   }
 
   async addUser(userData) {
+    // Basic client-side validation
+    if (!userData.name || !userData.email) throw new Error('Name and email are required');
     try {
-      const response = await fetch('/api/users', {
+      const response = await fetch(`${API_URL}/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           name: userData.name,
           email: userData.email,
@@ -85,74 +90,73 @@ class UserService {
         })
       });
       if (!response.ok) throw new Error('Failed to add user');
-      
       const user = await response.json();
       return this.getUserById(user.id);
     } catch (error) {
-      console.error('Error adding user:', error);
-      throw new Error('Failed to add user');
+      handleApiError(error, 'Failed to add user');
     }
   }
 
   async updateUser(id, updates) {
+    if (!id) throw new Error('User ID is required');
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(`${API_URL}/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(updates)
       });
       if (!response.ok) throw new Error('Failed to update user');
-      
       return this.getUserById(id);
     } catch (error) {
-      console.error('Error updating user:', error);
-      throw new Error('Failed to update user');
+      handleApiError(error, 'Failed to update user');
     }
   }
 
   async addTokens(userId, amount) {
+    if (!userId || !amount) throw new Error('User ID and amount are required');
     try {
-      const response = await fetch(`/api/users/${userId}/tokens`, {
+      const response = await fetch(`${API_URL}/users/${userId}/tokens`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ amount })
       });
       if (!response.ok) throw new Error('Failed to add tokens');
-      
       return this.getUserById(userId);
     } catch (error) {
-      console.error('Error adding tokens:', error);
-      throw new Error('Failed to add tokens');
+      handleApiError(error, 'Failed to add tokens');
     }
   }
 
   async removeUser(id) {
+    if (!id) throw new Error('User ID is required');
     try {
-      const response = await fetch(`/api/users/${id}`, {
-        method: 'DELETE'
+      const response = await fetch(`${API_URL}/users/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to remove user');
-      
       return true;
     } catch (error) {
-      console.error('Error removing user:', error);
-      throw new Error('Failed to remove user');
+      handleApiError(error, 'Failed to remove user');
     }
   }
 
-  // Get custom links for a user
   async getCustomLinks(userId) {
-    const response = await fetch(`/api/users/${userId}/custom-links`);
+    if (!userId) throw new Error('User ID is required');
+    const response = await fetch(`${API_URL}/users/${userId}/custom-links`, { credentials: 'include' });
     if (!response.ok) throw new Error('Failed to fetch custom links');
     const data = await response.json();
     return data.custom_links || [];
   }
 
-  // Update custom links for a user
   async updateCustomLinks(userId, customLinks) {
-    const response = await fetch(`/api/users/${userId}/custom-links`, {
+    if (!userId) throw new Error('User ID is required');
+    const response = await fetch(`${API_URL}/users/${userId}/custom-links`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ custom_links: customLinks })
     });
     if (!response.ok) throw new Error('Failed to update custom links');

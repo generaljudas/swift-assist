@@ -3,12 +3,20 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+// CORS configuration for credentials
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // PostgreSQL connection
 const pool = new Pool({
@@ -26,6 +34,12 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
 });
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_EXPIRES_IN = '2h'; // Adjust as needed
+
+// CSRF protection middleware
+const csrfProtection = csurf({ cookie: true });
 
 // Health check
 app.get('/', (req, res) => {
@@ -51,6 +65,10 @@ app.post('/api/login', async (req, res) => {
       console.log('Password mismatch for user:', username);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    // Generate JWT
+    const token = jwt.sign({ id: user.id, username: user.username, role: user.username === 'admin' ? 'admin' : 'user' }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    // Set HTTP-only cookie
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 2 * 60 * 60 * 1000 });
     res.json({ id: user.id, username: user.username, email: user.email, chat_context: user.chat_context, role: user.username === 'admin' ? 'admin' : 'user' });
   } catch (err) {
     console.error('Login error:', err);
@@ -73,8 +91,8 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Get user by ID
-app.get('/api/users/:id', async (req, res) => {
+// Protect user data endpoints
+app.get('/api/users/:id', authenticateJWT, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, username, email, chat_context FROM users WHERE id = $1', [req.params.id]);
     if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
@@ -84,8 +102,8 @@ app.get('/api/users/:id', async (req, res) => {
   }
 });
 
-// Get user's custom links
-app.get('/api/users/:id/custom-links', async (req, res) => {
+// Protect user's custom links endpoint
+app.get('/api/users/:id/custom-links', authenticateJWT, async (req, res) => {
   try {
     const result = await pool.query('SELECT custom_links FROM users WHERE id = $1', [req.params.id]);
     if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
@@ -95,8 +113,8 @@ app.get('/api/users/:id/custom-links', async (req, res) => {
   }
 });
 
-// Update user's custom links
-app.put('/api/users/:id/custom-links', async (req, res) => {
+// Protect and update user's custom links endpoint
+app.put('/api/users/:id/custom-links', authenticateJWT, async (req, res) => {
   try {
     const { custom_links } = req.body;
     await pool.query('UPDATE users SET custom_links = $1 WHERE id = $2', [custom_links, req.params.id]);
@@ -105,6 +123,47 @@ app.put('/api/users/:id/custom-links', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// Logout endpoint to clear JWT cookie
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+  res.json({ success: true });
+});
+
+// Endpoint to get CSRF token
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+// Middleware to verify JWT
+function authenticateJWT(req, res, next) {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+// Middleware to check admin role
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Forbidden: Admins only' });
+  next();
+}
+
+// Add CSRF protection to state-changing routes
+app.use('/api', (req, res, next) => {
+  // Only protect state-changing methods
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    return csrfProtection(req, res, next);
+  }
+  next();
+});
+
+// Example: Protect future admin endpoints
+// app.get('/api/admin/some-data', authenticateJWT, requireAdmin, (req, res) => { ... });
 
 app.listen(port, () => {
   console.log(`Express server running on port ${port}`);
