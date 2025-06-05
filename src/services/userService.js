@@ -13,16 +13,13 @@ class UserService {
       const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
+      // Map to include username, email, role, created_at
       return data.map(user => ({
         id: user.id,
-        name: user.name,
+        username: user.username || user.name,
         email: user.email,
-        company: user.company?.name || '',
-        botLinks: user.metadata?.botLinks || [],
-        location: user.metadata?.location || '',
-        businessType: user.metadata?.businessType || '',
-        currentTokens: user.metadata?.currentTokens || 0,
-        totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
+        role: user.role || 'user',
+        created_at: user.created_at
       }));
     } catch (error) {
       handleApiError(error, 'Failed to fetch users');

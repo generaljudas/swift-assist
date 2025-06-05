@@ -162,6 +162,16 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+// Admin: Get all users
+app.get('/api/users', authenticateJWT, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Example: Protect future admin endpoints
 // app.get('/api/admin/some-data', authenticateJWT, requireAdmin, (req, res) => { ... });
 
