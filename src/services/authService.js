@@ -50,19 +50,6 @@ class AuthService {
     }
   }
 
-  async register(username, email, password) {
-    if (!username || !email || !password) throw new Error('All fields are required');
-    try {
-      const res = await axios.post(`${API_URL}/register`, { username, email, password });
-      this.isAuthenticated = true;
-      this.user = res.data;
-      this.saveAuthState();
-      return { user: this.user };
-    } catch (err) {
-      handleApiError(err, 'Registration failed');
-    }
-  }
-
   async logout() {
     this.isAuthenticated = false;
     this.user = null;

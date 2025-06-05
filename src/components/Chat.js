@@ -146,10 +146,10 @@ const Chat = () => {
         </div>
         <div>
           <Link
-            to="/register"
+            to="/login"
             className="px-6 py-3 text-base font-medium text-gray-700 hover:text-gray-900"
           >
-            Sign Up
+            Login
           </Link>
         </div>
       </div>

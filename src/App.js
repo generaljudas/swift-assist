@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
-import Register from './components/Register';
 import Chat from './components/Chat';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
@@ -182,7 +181,6 @@ const App = () => {
         } />
         
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route path="/chat" element={<Chat />} />
         {/* Public custom chat page for customer links */}
         <Route path="/chat/:customLinkName" element={<PublicChatPage />} />
