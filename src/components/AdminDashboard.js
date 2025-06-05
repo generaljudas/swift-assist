@@ -44,12 +44,11 @@ const AdminDashboard = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin/dashboard' },
+    // Removed 'Dashboard' and 'Admin Tools' tabs
     { name: 'Users', path: '/admin/users' },
     { name: 'Transactions', path: '/admin/transactions' },
     { name: 'Analytics', path: '/admin/analytics' },
     { name: 'Alerts', path: '/admin/alerts' },
-    { name: 'Admin Tools', path: '/admin/tools' },
     { name: 'Settings', path: '/admin/settings' }
   ];
 
@@ -102,6 +101,9 @@ const AdminDashboard = () => {
             />
           } />
           <Route path="users" element={<Users />} />
+          <Route path="transactions" element={<div className="text-gray-500 text-xl">Transactions feature coming soon.</div>} />
+          <Route path="analytics" element={<div className="text-gray-500 text-xl">Analytics feature coming soon.</div>} />
+          <Route path="alerts" element={<div className="text-gray-500 text-xl">Alerts feature coming soon.</div>} />
           <Route path="*" element={
             <SettingsForm 
               apiKey={apiKey}
