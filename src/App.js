@@ -7,6 +7,7 @@ import UserDashboard from './components/UserDashboard';
 import Contact from './components/Contact';
 import { authService } from './services/authService';
 import PublicChatPage from './pages/PublicChatPage';
+import CasaPage from './pages/CasaPage';
 
 // OAuth Callback handler
 const AuthCallback = () => {
@@ -184,6 +185,8 @@ const App = () => {
         <Route path="/chat" element={<Chat />} />
         {/* Public custom chat page for customer links */}
         <Route path="/chat/:customLinkName" element={<PublicChatPage />} />
+        {/* Casa page for any user, public or not */}
+        <Route path="/casa/:linkName" element={<CasaPage />} />
         <Route path="/dashboard" element={
           <AuthRoute>
             <UserDashboard />

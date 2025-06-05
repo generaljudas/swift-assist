@@ -17,6 +17,9 @@ const UserDashboard = () => {
   const [userContext, setUserContext] = useState(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
   const [customLinks, setCustomLinks] = useState([]);
   const [loadingLinks, setLoadingLinks] = useState(true);
+  const [editingLinkIndex, setEditingLinkIndex] = useState(null);
+  const [editLinkName, setEditLinkName] = useState('');
+  const [editLinkContext, setEditLinkContext] = useState('');
 
   const handleLogout = () => {
     authService.logout();
@@ -30,7 +33,13 @@ const UserDashboard = () => {
       if (currentUser && currentUser.id) {
         try {
           const links = await userService.getCustomLinks(currentUser.id);
-          setCustomLinks(links);
+          // Ensure each link is an object with name, context, and url
+          const normalizedLinks = (links || []).map(l =>
+            typeof l === 'string'
+              ? { name: l, context: '', url: `${window.location.origin}/chat/${l}` }
+              : { ...l, url: `${window.location.origin}/chat/${l.name || l.url?.split('/').pop()}` }
+          );
+          setCustomLinks(normalizedLinks);
         } catch (e) {
           setCustomLinks([]);
         }
@@ -58,16 +67,20 @@ const UserDashboard = () => {
     setLinkError('');
 
     // Create the link with the custom name
-    const link = `${window.location.origin}/chat/${customLinkName}`;
-    setGeneratedLink(link);
+    const linkObj = {
+      name: customLinkName,
+      context: '',
+      url: `${window.location.origin}/chat/${customLinkName}`
+    };
+    const updatedLinks = [...customLinks, linkObj];
+    setGeneratedLink(linkObj.url);
     setLinkCopied(false);
-    
+    setCustomLinks(updatedLinks);
+
     // Save to backend
     const currentUser = authService.currentUserValue;
     if (currentUser && currentUser.id) {
-      const updatedLinks = [...customLinks, link];
       await userService.updateCustomLinks(currentUser.id, updatedLinks);
-      setCustomLinks(updatedLinks);
     }
   };
 
@@ -81,10 +94,56 @@ const UserDashboard = () => {
   const handleUserContextChange = (e) => {
     setUserContext(e.target.value);
     localStorage.setItem(USER_CHAT_CONTEXT_KEY, e.target.value);
+    // Optionally, update all custom links' context if you want a default context
   };
 
-  const handleSaveUserContext = () => {
+  const handleSaveUserContext = async () => {
     localStorage.setItem(USER_CHAT_CONTEXT_KEY, userContext);
+    // Optionally, update all custom links' context in the backend
+    const currentUser = authService.currentUserValue;
+    if (currentUser && currentUser.id) {
+      const updatedLinks = customLinks.map(l => ({ ...l, context: userContext }));
+      setCustomLinks(updatedLinks);
+      await userService.updateCustomLinks(currentUser.id, updatedLinks);
+    }
+  };
+
+  const handleEditLink = (index) => {
+    setEditingLinkIndex(index);
+    setEditLinkName(customLinks[index].name || '');
+    setEditLinkContext(customLinks[index].context || '');
+  };
+
+  const handleCancelEditLink = () => {
+    setEditingLinkIndex(null);
+    setEditLinkName('');
+    setEditLinkContext('');
+  };
+
+  const handleSaveEditLink = async () => {
+    if (!editLinkName.trim()) return;
+    const updatedLinks = [...customLinks];
+    updatedLinks[editingLinkIndex] = {
+      ...updatedLinks[editingLinkIndex],
+      name: editLinkName,
+      context: editLinkContext,
+      url: `${window.location.origin}/chat/${editLinkName}`
+    };
+    setCustomLinks(updatedLinks);
+    setEditingLinkIndex(null);
+    setEditLinkName('');
+    setEditLinkContext('');
+    // Save to backend
+    const currentUser = authService.currentUserValue;
+    if (currentUser && currentUser.id) {
+      await userService.updateCustomLinks(currentUser.id, updatedLinks);
+    }
+  };
+
+  // Add a helper to get context for a link name
+  const getContextForLink = (name) => {
+    const link = customLinks.find(l => l.name === name);
+    return link ? link.context : '';
   };
 
   const renderContent = () => {
@@ -258,12 +317,76 @@ const UserDashboard = () => {
               ) : (
                 <ul className="list-disc pl-6">
                   {customLinks.map((l, i) => (
-                    <li key={i} className="mb-1"><a href={l} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{l}</a></li>
+                    <li key={i} className="mb-1 flex items-center gap-2">
+                      <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{l.url}</a>
+                      <button onClick={() => handleEditLink(i)} className="text-xs text-gray-500 underline">Edit</button>
+                    </li>
                   ))}
                   {customLinks.length === 0 && <li className="text-gray-500">No links created yet.</li>}
                 </ul>
               )}
+              {/* Edit link modal or inline form */}
+              {editingLinkIndex !== null && (
+                <div className="mt-4 p-4 border rounded bg-gray-50">
+                  <label className="block text-sm font-medium mb-1">Link Name</label>
+                  <input
+                    type="text"
+                    value={editLinkName}
+                    onChange={e => setEditLinkName(e.target.value)}
+                    className="w-full px-3 py-2 border rounded mb-2"
+                  />
+                  <label className="block text-sm font-medium mb-1">Context</label>
+                  <textarea
+                    value={editLinkContext}
+                    onChange={e => setEditLinkContext(e.target.value)}
+                    className="w-full px-3 py-2 border rounded mb-2"
+                    rows={3}
+                  />
+                  <button onClick={handleSaveEditLink} className="px-4 py-2 bg-blue-500 text-white rounded mr-2">Save</button>
+                  <button onClick={handleCancelEditLink} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                </div>
+              )}
             </div>
+          </div>
+        );
+      case 'links':
+        return (
+          <div className="p-6 max-w-xl mx-auto">
+            <h2 className="text-xl font-semibold mb-4">My Links</h2>
+            {loadingLinks ? (
+              <div>Loading...</div>
+            ) : (
+              <ul className="list-disc pl-6">
+                {customLinks.map((l, i) => (
+                  <li key={i} className="mb-1 flex items-center gap-2">
+                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{l.url}</a>
+                    <span className="text-xs text-gray-500 ml-2">{l.name}</span>
+                    <button onClick={() => handleEditLink(i)} className="text-xs text-gray-500 underline">Edit</button>
+                  </li>
+                ))}
+                {customLinks.length === 0 && <li className="text-gray-500">No links created yet.</li>}
+              </ul>
+            )}
+            {editingLinkIndex !== null && (
+              <div className="mt-4 p-4 border rounded bg-gray-50">
+                <label className="block text-sm font-medium mb-1">Link Name</label>
+                <input
+                  type="text"
+                  value={editLinkName}
+                  onChange={e => setEditLinkName(e.target.value)}
+                  className="w-full px-3 py-2 border rounded mb-2"
+                />
+                <label className="block text-sm font-medium mb-1">Context</label>
+                <textarea
+                  value={editLinkContext}
+                  onChange={e => setEditLinkContext(e.target.value)}
+                  className="w-full px-3 py-2 border rounded mb-2"
+                  rows={3}
+                />
+                <button onClick={handleSaveEditLink} className="px-4 py-2 bg-blue-500 text-white rounded mr-2">Save</button>
+                <button onClick={handleCancelEditLink} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+              </div>
+            )}
           </div>
         );
       default:
@@ -319,6 +442,14 @@ const UserDashboard = () => {
               }`}
             >
               Create a Link
+            </button>
+            <button
+              onClick={() => setActiveTab('links')}
+              className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                activeTab === 'links' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+              }`}
+            >
+              My Links
             </button>
           </nav>
           <div className="absolute bottom-0 w-64 p-4 border-t border-gray-200">

@@ -1,13 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import CustomChatWindow from '../components/CustomChatWindow';
+import axios from 'axios';
 
-// This page renders only the CustomChatWindow, using the user's custom chat context from localStorage
+// This page renders CustomChatWindow, fetching the context from the backend based on the link
 const PublicChatPage = () => {
-  // Optionally, you could get the context from the URL or other source
-  // For now, CustomChatWindow will use the context from localStorage (user_custom_chat_context)
+  const { customLinkName } = useParams();
+  const [context, setContext] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContext = async () => {
+      try {
+        const res = await axios.get(`/api/casa/${customLinkName}/context`);
+        if (res.data && res.data.context && res.data.context.length > 0) {
+          // Use the first system message or join all system messages
+          const systemMessages = res.data.context.filter(m => m.role === 'system');
+          setContext(systemMessages.map(m => m.content).join('\n'));
+        } else {
+          setContext('');
+        }
+      } catch (err) {
+        setContext('Failed to load chat context.');
+      }
+      setLoading(false);
+    };
+    fetchContext();
+  }, [customLinkName]);
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50">Loading...</div>;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <CustomChatWindow />
+      <CustomChatWindow initialContext={context} />
     </div>
   );
 };
