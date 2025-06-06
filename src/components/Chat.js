@@ -11,7 +11,6 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [context, setContext] = useState('');
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const inputRef = useRef(null);
@@ -32,39 +31,8 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-    const user = authService.getUser();
-    const storedApiKey = settingsService.getApiKey();
-    const storedContext = settingsService.getContextForUser(user);
-
-    if (storedApiKey) {
-      chatService.setApiKey(storedApiKey);
-      
-      // Add a greeting message when the chat loads
-      setMessages([{
-        role: 'assistant',
-        content: 'Hello! Welcome to Swift Assist. How can I help you today?'
-      }]);
-    } else if (!authService.isAdmin()) {
-      // For non-admin users, show an error message when API key is not set
-      setMessages([{
-        role: 'assistant',
-        content: 'Chat is currently unavailable. Please try again later or contact support.'
-      }]);
-    } else {
-      // For admin users without API key, still show a greeting
-      setMessages([{
-        role: 'assistant',
-        content: 'Welcome, admin! Please set up your API key in the settings to enable the chat functionality.'
-      }]);
-    }
-
-    setContext(storedContext);
-    
-    // Focus the input field when component mounts
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [navigate]);
+    // Remove all local context logic, let ChatWindowContainer handle fetching from backend
+  }, []);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -85,12 +53,6 @@ const Chat = () => {
         content: m.content 
       }));
       
-      // If we have a custom context set by the user, override the default system context
-      if (context && context.trim()) {
-        // Insert the custom context at the beginning of the conversation history
-        conversationHistory.unshift({ role: 'system', content: context });
-      }
-
       const response = await chatService.sendMessage(currentInputMessage, conversationHistory);
       
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);

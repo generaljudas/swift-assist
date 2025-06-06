@@ -20,7 +20,18 @@ const AdminDashboard = () => {
     }
 
     setApiKey(settingsService.getApiKey() || '');
-    setAdminContext(settingsService.getAdminContext() || '');
+    // Always fetch admin context from the public endpoint for consistency
+    const fetchAdminContext = async () => {
+      try {
+        const { API_URL } = await import('../services/userService');
+        const response = await fetch(`${API_URL}/public/admin-context`);
+        const data = await response.json();
+        setAdminContext(data.chat_context || '');
+      } catch {
+        setAdminContext('');
+      }
+    };
+    fetchAdminContext();
   }, [navigate]);
 
   const handleSave = async (e) => {
@@ -36,8 +47,7 @@ const AdminDashboard = () => {
         if (adminUser && adminUser.id) {
           await userService.updateChatContext(adminUser.id, adminContext.trim());
         }
-        // Optionally, keep local for instant UI update
-        settingsService.setAdminContext(adminContext.trim());
+        // Remove localStorage update for adminContext
       }
       setSaveStatus('Settings saved successfully!');
       setTimeout(() => setSaveStatus(''), 3000);

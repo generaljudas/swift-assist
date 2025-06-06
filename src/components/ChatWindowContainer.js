@@ -28,8 +28,8 @@ const ChatWindowContainer = ({ mode = 'admin', contextOverride }) => {
       try {
         let ctx = '';
         if (mode === 'admin') {
-          // Fetch admin context (assume admin is user with username 'admin')
-          const res = await axios.get(`${API_URL}/users/admin`, { withCredentials: true });
+          // Fetch admin context from public endpoint (no auth required)
+          const res = await axios.get(`${API_URL}/public/admin-context`);
           ctx = res.data?.chat_context || '';
         } else {
           // Fetch current user context

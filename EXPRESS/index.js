@@ -243,6 +243,17 @@ app.post('/api/public/:linkName/message', async (req, res) => {
   res.json({ reply: `Echo: ${message}` });
 });
 
+// Public: Get admin chat context (no auth required)
+app.get('/api/public/admin-context', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT chat_context FROM users WHERE username = $1', ['admin']);
+    if (!result.rows.length) return res.status(404).json({ error: 'Admin user not found' });
+    res.json({ chat_context: result.rows[0].chat_context || '' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Example: Protect future admin endpoints
 // app.get('/api/admin/some-data', authenticateJWT, requireAdmin, (req, res) => { ... });
 
