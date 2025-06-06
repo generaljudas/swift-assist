@@ -124,6 +124,21 @@ app.put('/api/users/:id/custom-links', authenticateJWT, async (req, res) => {
   }
 });
 
+// Update a user's chat_context (admin can update any, user can update their own)
+app.put('/api/users/:id/chat-context', authenticateJWT, async (req, res) => {
+  try {
+    const { chat_context } = req.body;
+    // Only allow if admin or the user is updating their own context
+    if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
+      return res.status(403).json({ error: 'Forbidden: You can only update your own context.' });
+    }
+    await pool.query('UPDATE users SET chat_context = $1, updated_at = now() WHERE id = $2', [chat_context, req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update chat context' });
+  }
+});
+
 // Logout endpoint to clear JWT cookie
 app.post('/api/logout', (req, res) => {
   res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
@@ -172,8 +187,8 @@ app.get('/api/users', authenticateJWT, requireAdmin, async (req, res) => {
   }
 });
 
-// Casa: Get chat context for a given casa link
-app.get('/api/casa/:linkName/context', async (req, res) => {
+// Public: Get chat context for a given public link
+app.get('/api/public/:linkName/context', async (req, res) => {
   const { linkName } = req.params;
   try {
     // Try to find a user with a custom link matching linkName
@@ -196,7 +211,7 @@ app.get('/api/casa/:linkName/context', async (req, res) => {
       }
     }
     if (!foundUser) {
-      return res.status(404).json({ error: 'Casa link not found.' });
+      return res.status(404).json({ error: 'Public link not found.' });
     }
     // Always return context as an array of messages for compatibility
     let context = [];
@@ -221,8 +236,8 @@ app.get('/api/casa/:linkName/context', async (req, res) => {
   }
 });
 
-// Casa: Post a message to a given casa link (stub, no AI reply)
-app.post('/api/casa/:linkName/message', async (req, res) => {
+// Public: Post a message to a given public link (stub, no AI reply)
+app.post('/api/public/:linkName/message', async (req, res) => {
   // For now, just echo a stub reply
   const { message } = req.body;
   res.json({ reply: `Echo: ${message}` });

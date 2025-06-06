@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
-import CustomChatWindow from './CustomChatWindow';
+import ChatWindowContainer from './ChatWindowContainer';
 
+// USER_CHAT_CONTEXT_KEY and all localStorage usage for context are now obsolete and can be removed.
 const USER_CHAT_CONTEXT_KEY = 'user_custom_chat_context';
 
 const UserDashboard = () => {
@@ -98,13 +99,16 @@ const UserDashboard = () => {
   };
 
   const handleSaveUserContext = async () => {
-    localStorage.setItem(USER_CHAT_CONTEXT_KEY, userContext);
-    // Optionally, update all custom links' context in the backend
-    const currentUser = authService.currentUserValue;
+    const currentUser = authService.getUser();
     if (currentUser && currentUser.id) {
-      const updatedLinks = customLinks.map(l => ({ ...l, context: userContext }));
-      setCustomLinks(updatedLinks);
-      await userService.updateCustomLinks(currentUser.id, updatedLinks);
+      try {
+        await userService.updateChatContext(currentUser.id, userContext);
+        alert('Context saved!');
+      } catch (e) {
+        alert('Failed to save context: ' + (e.message || e));
+      }
+    } else {
+      alert('Not logged in.');
     }
   };
 
@@ -195,7 +199,7 @@ const UserDashboard = () => {
             <h2 className="text-xl font-semibold mb-4">Preview Chat</h2>
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-2">Live Custom Chat Preview</h3>
-              <CustomChatWindow />
+              <ChatWindowContainer mode="user" />
             </div>
           </div>
         );

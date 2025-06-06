@@ -1,3 +1,6 @@
+// This file is now deprecated. Use ChatWindowContainer instead for all chat preview and chat page logic.
+// This component is no longer used anywhere in the app.
+
 import React, { useRef, useState } from 'react';
 import ChatWindow from './ChatWindow';
 import { chatService } from '../services/chatService';

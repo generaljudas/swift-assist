@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, NavLink, Routes, Route } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { settingsService } from '../services/settingsService';
+import { userService } from '../services/userService';
 import Users from './Users';
 import SettingsForm from './SettingsForm';
 
@@ -22,13 +23,20 @@ const AdminDashboard = () => {
     setAdminContext(settingsService.getAdminContext() || '');
   }, [navigate]);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    setSaveStatus('');
     try {
       if (apiKey.trim()) {
         settingsService.setApiKey(apiKey.trim());
       }
       if (adminContext.trim()) {
+        // Save to database for admin user
+        const adminUser = authService.getUser();
+        if (adminUser && adminUser.id) {
+          await userService.updateChatContext(adminUser.id, adminContext.trim());
+        }
+        // Optionally, keep local for instant UI update
         settingsService.setAdminContext(adminContext.trim());
       }
       setSaveStatus('Settings saved successfully!');

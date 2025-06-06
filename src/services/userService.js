@@ -159,6 +159,23 @@ class UserService {
     if (!response.ok) throw new Error('Failed to update custom links');
     return true;
   }
+
+  async updateChatContext(id, chat_context) {
+    if (!id) throw new Error('User ID is required');
+    try {
+      const response = await fetch(`${API_URL}/users/${id}/chat-context`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ chat_context })
+      });
+      if (!response.ok) throw new Error('Failed to update chat context');
+      return true;
+    } catch (error) {
+      handleApiError(error, 'Failed to update chat context');
+    }
+  }
 }
 
 export const userService = new UserService();
+export { API_URL };
