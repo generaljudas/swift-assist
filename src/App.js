@@ -6,7 +6,6 @@ import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
 import Contact from './components/Contact';
 import { authService } from './services/authService';
-import PublicChatPage from './pages/PublicChatPage';
 
 // OAuth Callback handler
 const AuthCallback = () => {
@@ -182,8 +181,6 @@ const App = () => {
         
         <Route path="/login" element={<Login />} />
         <Route path="/chat" element={<Chat />} />
-        {/* Public custom chat page for customer links */}
-        <Route path="/chat/:customLinkName" element={<PublicChatPage />} />
         <Route path="/dashboard" element={
           <AuthRoute>
             <UserDashboard />

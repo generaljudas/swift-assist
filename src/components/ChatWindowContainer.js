@@ -7,7 +7,7 @@ import axios from 'axios';
 import { API_URL } from '../services/userService';
 
 // mode: 'admin' | 'user'
-const ChatWindowContainer = ({ mode = 'admin', contextOverride }) => {
+const ChatWindowContainer = ({ mode = 'admin' }) => {
   const [context, setContext] = useState('');
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -17,13 +17,6 @@ const ChatWindowContainer = ({ mode = 'admin', contextOverride }) => {
 
   // Fetch context from backend
   useEffect(() => {
-    if (contextOverride !== undefined) {
-      setContext(contextOverride);
-      setMessages([
-        { role: 'assistant', content: contextOverride ? contextOverride.split(/[.!?]/)[0] : 'Hello! How can I help you today?' }
-      ]);
-      return;
-    }
     const fetchContext = async () => {
       try {
         let ctx = '';
@@ -49,7 +42,7 @@ const ChatWindowContainer = ({ mode = 'admin', contextOverride }) => {
       }
     };
     fetchContext();
-  }, [mode, contextOverride]);
+  }, [mode]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();

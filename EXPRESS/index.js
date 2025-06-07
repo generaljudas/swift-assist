@@ -102,28 +102,6 @@ app.get('/api/users/:id', authenticateJWT, async (req, res) => {
   }
 });
 
-// Protect user's custom links endpoint
-app.get('/api/users/:id/custom-links', authenticateJWT, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT custom_links FROM users WHERE id = $1', [req.params.id]);
-    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
-    res.json({ custom_links: result.rows[0].custom_links || [] });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Protect and update user's custom links endpoint
-app.put('/api/users/:id/custom-links', authenticateJWT, async (req, res) => {
-  try {
-    const { custom_links } = req.body;
-    await pool.query('UPDATE users SET custom_links = $1 WHERE id = $2', [custom_links, req.params.id]);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
 // Update a user's chat_context (admin can update any, user can update their own)
 app.put('/api/users/:id/chat-context', authenticateJWT, async (req, res) => {
   try {
@@ -186,76 +164,6 @@ app.get('/api/users', authenticateJWT, requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-// Public: Get chat context for a given public link
-app.get('/api/public/:linkName/context', async (req, res) => {
-  const { linkName } = req.params;
-  try {
-    // Try to find a user with a custom link matching linkName
-    const userResult = await pool.query(
-      `SELECT username, chat_context, custom_links FROM users`
-    );
-    let foundUser = null;
-    for (const user of userResult.rows) {
-      // Check custom_links (array of objects with name or value)
-      if (user.custom_links && Array.isArray(user.custom_links)) {
-        if (user.custom_links.some(link => link && (link.name === linkName || link.value === linkName))) {
-          foundUser = user;
-          break;
-        }
-      }
-      // Fallback: check if linkName matches username
-      if (user.username === linkName) {
-        foundUser = user;
-        break;
-      }
-    }
-    if (!foundUser) {
-      return res.status(404).json({ error: 'Public link not found.' });
-    }
-    // Always return context as an array of messages for compatibility
-    let context = [];
-    if (foundUser.chat_context) {
-      try {
-        // If chat_context is a JSON array, use it
-        const parsed = JSON.parse(foundUser.chat_context);
-        if (Array.isArray(parsed)) {
-          context = parsed;
-        } else if (typeof parsed === 'string') {
-          context = [{ role: 'system', content: parsed }];
-        } else {
-          context = [{ role: 'system', content: foundUser.chat_context }];
-        }
-      } catch {
-        context = [{ role: 'system', content: foundUser.chat_context }];
-      }
-    }
-    res.json({ context });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Public: Post a message to a given public link (stub, no AI reply)
-app.post('/api/public/:linkName/message', async (req, res) => {
-  // For now, just echo a stub reply
-  const { message } = req.body;
-  res.json({ reply: `Echo: ${message}` });
-});
-
-// Public: Get admin chat context (no auth required)
-app.get('/api/public/admin-context', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT chat_context FROM users WHERE username = $1', ['admin']);
-    if (!result.rows.length) return res.status(404).json({ error: 'Admin user not found' });
-    res.json({ chat_context: result.rows[0].chat_context || '' });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Example: Protect future admin endpoints
-// app.get('/api/admin/some-data', authenticateJWT, requireAdmin, (req, res) => { ... });
 
 app.listen(port, () => {
   console.log(`Express server running on port ${port}`);
