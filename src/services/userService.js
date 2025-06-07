@@ -139,6 +139,23 @@ class UserService {
       handleApiError(error, 'Failed to remove user');
     }
   }
+
+  // Update the chat context for a user
+  async updateChatContext(userId, chatContext) {
+    if (!userId) throw new Error('User ID is required');
+    try {
+      const response = await fetch(`${API_URL}/users/${userId}/chat-context`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ chat_context: chatContext })
+      });
+      if (!response.ok) throw new Error('Failed to update chat context');
+      return true;
+    } catch (error) {
+      handleApiError(error, 'Failed to update chat context');
+    }
+  }
 }
 
 export const userService = new UserService();

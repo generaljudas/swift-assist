@@ -12,6 +12,7 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('chat-context');
   const [userContext, setUserContext] = useState(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
   const [loadingLinks, setLoadingLinks] = useState(true);
+  const [customLinks, setCustomLinks] = useState([]);
 
   const handleLogout = () => {
     authService.logout();
@@ -115,7 +116,10 @@ const UserDashboard = () => {
             <h2 className="text-xl font-semibold mb-4">Preview Chat</h2>
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-2">Live Custom Chat Preview</h3>
-              <ChatWindowContainer mode="user" />
+              <ChatWindowContainer
+                mode="user"
+                contextOverride={userContext}
+              />
             </div>
           </div>
         );
