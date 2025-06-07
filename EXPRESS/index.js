@@ -208,9 +208,13 @@ app.get('/api/public/admin-context', async (req, res) => {
 app.get('/api/public/user-context/:username', async (req, res) => {
   try {
     const username = req.params.username;
-    const result = await pool.query('SELECT chat_context FROM users WHERE username = $1', [username]);
+    const result = await pool.query('SELECT chat_context, public_chat_header, public_chat_subheader FROM users WHERE username = $1', [username]);
     if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
-    res.json({ chat_context: result.rows[0].chat_context || '' });
+    res.json({
+      chat_context: result.rows[0].chat_context || '',
+      public_chat_header: result.rows[0].public_chat_header || '',
+      public_chat_subheader: result.rows[0].public_chat_subheader || ''
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user context' });
   }

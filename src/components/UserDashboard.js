@@ -92,10 +92,64 @@ const UserDashboard = () => {
     setPublicChatSubheader(e.target.value);
   };
   const handleSavePublicChatHeader = async () => {
-    alert('Header text saved!');
+    try {
+      // Fetch CSRF token first
+      const csrfRes = await fetch('http://localhost:5000/api/csrf-token', { credentials: 'include' });
+      const csrfData = await csrfRes.json();
+      const csrfToken = csrfData.csrfToken;
+      const currentUser = authService.getUser();
+      if (!currentUser || !currentUser.id) {
+        alert('User not authenticated. Please log in again.');
+        return;
+      }
+      const res = await fetch(`http://localhost:5000/api/users/${currentUser.id}/chat-context`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          chat_context: userContext,
+          public_chat_header: publicChatHeader,
+          public_chat_subheader: publicChatSubheader
+        })
+      });
+      if (!res.ok) throw new Error('Failed to update public chat header');
+      alert('Header text saved!');
+    } catch (e) {
+      alert('Failed to save header: ' + (e.message || e));
+    }
   };
   const handleSavePublicChatSubheader = async () => {
-    alert('Subheader text saved!');
+    try {
+      // Fetch CSRF token first
+      const csrfRes = await fetch('http://localhost:5000/api/csrf-token', { credentials: 'include' });
+      const csrfData = await csrfRes.json();
+      const csrfToken = csrfData.csrfToken;
+      const currentUser = authService.getUser();
+      if (!currentUser || !currentUser.id) {
+        alert('User not authenticated. Please log in again.');
+        return;
+      }
+      const res = await fetch(`http://localhost:5000/api/users/${currentUser.id}/chat-context`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          chat_context: userContext,
+          public_chat_header: publicChatHeader,
+          public_chat_subheader: publicChatSubheader
+        })
+      });
+      if (!res.ok) throw new Error('Failed to update public chat subheader');
+      alert('Subheader text saved!');
+    } catch (e) {
+      alert('Failed to save subheader: ' + (e.message || e));
+    }
   };
 
   // Add a helper to get context for a link name

@@ -6,23 +6,34 @@ const USER_CHAT_CONTEXT_KEY = 'user_custom_chat_context';
 
 const PublicChatStandalone = () => {
   const [userContext, setUserContext] = useState('');
-  const [publicChatHeader, setPublicChatHeader] = useState(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
-  const [publicChatSubheader, setPublicChatSubheader] = useState(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
+  const [publicChatHeader, setPublicChatHeader] = useState('Chat with Swift Assist');
+  const [publicChatSubheader, setPublicChatSubheader] = useState('Ask anything! This is a live AI chat preview for all visitors.');
 
   useEffect(() => {
-    // Fetch context from backend public endpoint for 'user' account
+    // Fetch context and headers from backend public endpoint for the logged-in user
     const fetchContext = async () => {
+      let username = 'user';
       try {
-        const res = await fetch('http://localhost:5000/api/public/user-context/user');
+        // Try to get the logged-in user from authService
+        const authData = localStorage.getItem('auth');
+        if (authData) {
+          const parsed = JSON.parse(authData);
+          if (parsed.user && parsed.user.username) {
+            username = parsed.user.username;
+          }
+        }
+        const res = await fetch(`http://localhost:5000/api/public/user-context/${username}`);
         const data = await res.json();
         setUserContext(data.chat_context || '');
+        setPublicChatHeader(data.public_chat_header || 'Chat with Swift Assist');
+        setPublicChatSubheader(data.public_chat_subheader || 'Ask anything! This is a live AI chat preview for all visitors.');
       } catch {
         setUserContext('');
+        setPublicChatHeader('Chat with Swift Assist');
+        setPublicChatSubheader('Ask anything! This is a live AI chat preview for all visitors.');
       }
     };
     fetchContext();
-    setPublicChatHeader(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
-    setPublicChatSubheader(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
   }, []);
 
   return (
