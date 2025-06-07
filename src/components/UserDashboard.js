@@ -52,6 +52,24 @@ const UserDashboard = () => {
     fetchLinks();
   }, []);
 
+  // Fetch current header and subheader from backend for preview tab
+  useEffect(() => {
+    if (activeTab === 'customize') {
+      const fetchHeaders = async () => {
+        try {
+          const res = await fetch('http://localhost:5000/api/public/user-context/user');
+          const data = await res.json();
+          setPublicChatHeader(data.public_chat_header || 'Chat with Swift Assist');
+          setPublicChatSubheader(data.public_chat_subheader || 'Ask anything! This is a live AI chat preview for all visitors.');
+        } catch {
+          setPublicChatHeader('Chat with Swift Assist');
+          setPublicChatSubheader('Ask anything! This is a live AI chat preview for all visitors.');
+        }
+      };
+      fetchHeaders();
+    }
+  }, [activeTab]);
+
   const handleUserContextChange = (e) => {
     setUserContext(e.target.value);
   };
