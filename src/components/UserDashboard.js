@@ -13,6 +13,8 @@ const UserDashboard = () => {
   const [userContext, setUserContext] = useState(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
   const [loadingLinks, setLoadingLinks] = useState(true);
   const [customLinks, setCustomLinks] = useState([]);
+  const [publicChatHeader, setPublicChatHeader] = useState(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
+  const [publicChatSubheader, setPublicChatSubheader] = useState(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
 
   const handleLogout = () => {
     authService.logout();
@@ -59,6 +61,21 @@ const UserDashboard = () => {
     } else {
       alert('Not logged in.');
     }
+  };
+
+  const handlePublicChatHeaderChange = (e) => {
+    setPublicChatHeader(e.target.value);
+    localStorage.setItem('public_chat_header', e.target.value);
+  };
+  const handlePublicChatSubheaderChange = (e) => {
+    setPublicChatSubheader(e.target.value);
+    localStorage.setItem('public_chat_subheader', e.target.value);
+  };
+  const handleSavePublicChatHeader = async () => {
+    alert('Header text saved!');
+  };
+  const handleSavePublicChatSubheader = async () => {
+    alert('Subheader text saved!');
   };
 
   // Add a helper to get context for a link name
@@ -114,8 +131,42 @@ const UserDashboard = () => {
         return (
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4">Preview Chat</h2>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">Public Chat Header Text</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value={publicChatHeader}
+                onChange={handlePublicChatHeaderChange}
+                placeholder="Enter the text to display above the public chat window"
+              />
+              <button
+                onClick={handleSavePublicChatHeader}
+                className="mt-2 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Save Header Text
+              </button>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">Public Chat Subheader Text</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value={publicChatSubheader}
+                onChange={handlePublicChatSubheaderChange}
+                placeholder="Enter the subheader text to display under the header"
+              />
+              <button
+                onClick={handleSavePublicChatSubheader}
+                className="mt-2 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Save Subheader Text
+              </button>
+            </div>
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-2">Live Custom Chat Preview</h3>
+              <div className="mb-4 text-2xl font-bold text-center">{publicChatHeader}</div>
+              <div className="mb-4 text-center text-gray-600">{publicChatSubheader}</div>
               <ChatWindowContainer
                 mode="user"
                 contextOverride={userContext}

@@ -6,16 +6,21 @@ const USER_CHAT_CONTEXT_KEY = 'user_custom_chat_context';
 
 const PublicChatStandalone = () => {
   const [userContext, setUserContext] = useState('');
+  const [publicChatHeader, setPublicChatHeader] = useState(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
+  const [publicChatSubheader, setPublicChatSubheader] = useState(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
+
   useEffect(() => {
     // Use the same logic as the dashboard preview: get context from localStorage
     setUserContext(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
+    setPublicChatHeader(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
+    setPublicChatSubheader(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <div className="w-full max-w-2xl p-4">
-        <h1 className="text-3xl font-bold text-center mb-4">Chat with Swift Assist</h1>
-        <p className="text-center text-gray-600 mb-8">Ask anything! This is a live AI chat preview for all visitors.</p>
+        <h1 className="text-3xl font-bold text-center mb-4">{publicChatHeader}</h1>
+        <p className="text-center text-gray-600 mb-8">{publicChatSubheader}</p>
         <ChatWindowContainer mode="user" contextOverride={userContext} />
       </div>
     </div>
