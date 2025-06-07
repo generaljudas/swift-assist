@@ -94,7 +94,7 @@ app.post('/api/register', async (req, res) => {
 // Protect user data endpoints
 app.get('/api/users/:id', authenticateJWT, async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, username, email, chat_context FROM users WHERE id = $1', [req.params.id]);
+    const result = await pool.query('SELECT id, username, email, chat_context, public_chat_header, public_chat_subheader FROM users WHERE id = $1', [req.params.id]);
     if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
     res.json(result.rows[0]);
   } catch (err) {
@@ -105,12 +105,15 @@ app.get('/api/users/:id', authenticateJWT, async (req, res) => {
 // Update a user's chat_context (admin can update any, user can update their own)
 app.put('/api/users/:id/chat-context', authenticateJWT, async (req, res) => {
   try {
-    const { chat_context } = req.body;
+    const { chat_context, public_chat_header, public_chat_subheader } = req.body;
     // Only allow if admin or the user is updating their own context
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
       return res.status(403).json({ error: 'Forbidden: You can only update your own context.' });
     }
-    await pool.query('UPDATE users SET chat_context = $1, updated_at = now() WHERE id = $2', [chat_context, req.params.id]);
+    await pool.query(
+      'UPDATE users SET chat_context = $1, public_chat_header = $2, public_chat_subheader = $3, updated_at = now() WHERE id = $4',
+      [chat_context, public_chat_header, public_chat_subheader, req.params.id]
+    );
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update chat context' });
