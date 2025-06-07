@@ -168,6 +168,54 @@ app.get('/api/users', authenticateJWT, requireAdmin, async (req, res) => {
   }
 });
 
+// Admin: Get or update admin chat context
+app.get('/api/admin/context', authenticateJWT, requireAdmin, async (req, res) => {
+  try {
+    // Find the admin user (by username or role)
+    const result = await pool.query('SELECT chat_context FROM users WHERE username = $1', ['admin']);
+    if (!result.rows.length) return res.status(404).json({ error: 'Admin user not found' });
+    res.json({ chat_context: result.rows[0].chat_context || '' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch admin context' });
+  }
+});
+
+app.put('/api/admin/context', authenticateJWT, requireAdmin, async (req, res) => {
+  try {
+    console.log('--- /api/admin/context PUT called ---');
+    console.log('req.user:', req.user);
+    const { chat_context } = req.body;
+    await pool.query('UPDATE users SET chat_context = $1, updated_at = now() WHERE username = $2', [chat_context, 'admin']);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Failed to update admin context:', err);
+    res.status(500).json({ error: 'Failed to update admin context' });
+  }
+});
+
+// Public endpoint to get admin chat context (no auth required)
+app.get('/api/public/admin-context', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT chat_context FROM users WHERE username = $1', ['admin']);
+    if (!result.rows.length) return res.status(404).json({ error: 'Admin user not found' });
+    res.json({ chat_context: result.rows[0].chat_context || '' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch admin context' });
+  }
+});
+
+// Public endpoint to get user chat context by username (no auth required)
+app.get('/api/public/user-context/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const result = await pool.query('SELECT chat_context FROM users WHERE username = $1', [username]);
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    res.json({ chat_context: result.rows[0].chat_context || '' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user context' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Express server running on port ${port}`);
 });

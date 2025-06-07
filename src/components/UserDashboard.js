@@ -4,17 +4,14 @@ import { authService } from '../services/authService';
 import { userService } from '../services/userService';
 import ChatWindowContainer from './ChatWindowContainer';
 
-// USER_CHAT_CONTEXT_KEY and all localStorage usage for context are now obsolete and can be removed.
-const USER_CHAT_CONTEXT_KEY = 'user_custom_chat_context';
-
 const UserDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('chat-context');
-  const [userContext, setUserContext] = useState(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
+  const [userContext, setUserContext] = useState('');
   const [loadingLinks, setLoadingLinks] = useState(true);
   const [customLinks, setCustomLinks] = useState([]);
-  const [publicChatHeader, setPublicChatHeader] = useState(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
-  const [publicChatSubheader, setPublicChatSubheader] = useState(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
+  const [publicChatHeader, setPublicChatHeader] = useState('Chat with Swift Assist');
+  const [publicChatSubheader, setPublicChatSubheader] = useState('Ask anything! This is a live AI chat preview for all visitors.');
 
   const handleLogout = () => {
     authService.logout();
@@ -22,6 +19,18 @@ const UserDashboard = () => {
   };
 
   useEffect(() => {
+    // Always fetch 'user' context from backend for dashboard
+    const fetchUserContext = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/public/user-context/user');
+        const data = await res.json();
+        setUserContext(data.chat_context || '');
+      } catch {
+        setUserContext('');
+      }
+    };
+    fetchUserContext();
+
     // Load custom links from backend on mount
     const fetchLinks = async () => {
       const currentUser = authService.currentUserValue;
@@ -45,31 +54,42 @@ const UserDashboard = () => {
 
   const handleUserContextChange = (e) => {
     setUserContext(e.target.value);
-    localStorage.setItem(USER_CHAT_CONTEXT_KEY, e.target.value);
-    // Optionally, update all custom links' context if you want a default context
   };
 
   const handleSaveUserContext = async () => {
-    const currentUser = authService.getUser();
-    if (currentUser && currentUser.id) {
-      try {
-        await userService.updateChatContext(currentUser.id, userContext);
-        alert('Context saved!');
-      } catch (e) {
-        alert('Failed to save context: ' + (e.message || e));
+    // Save to database for 'user' account via protected endpoint (requires login)
+    try {
+      // Fetch CSRF token first
+      const csrfRes = await fetch('http://localhost:5000/api/csrf-token', { credentials: 'include' });
+      const csrfData = await csrfRes.json();
+      const csrfToken = csrfData.csrfToken;
+      // Get current user (with UUID)
+      const currentUser = authService.getUser();
+      if (!currentUser || !currentUser.id) {
+        alert('User not authenticated. Please log in again.');
+        return;
       }
-    } else {
-      alert('Not logged in.');
+      const res = await fetch(`http://localhost:5000/api/users/${currentUser.id}/chat-context`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({ chat_context: userContext })
+      });
+      if (!res.ok) throw new Error('Failed to update user chat context');
+      alert('Context saved!');
+    } catch (e) {
+      alert('Failed to save context: ' + (e.message || e));
     }
   };
 
   const handlePublicChatHeaderChange = (e) => {
     setPublicChatHeader(e.target.value);
-    localStorage.setItem('public_chat_header', e.target.value);
   };
   const handlePublicChatSubheaderChange = (e) => {
     setPublicChatSubheader(e.target.value);
-    localStorage.setItem('public_chat_subheader', e.target.value);
   };
   const handleSavePublicChatHeader = async () => {
     alert('Header text saved!');

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, NavLink, Routes, Route } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { settingsService } from '../services/settingsService';
-import { userService } from '../services/userService';
+import { userService, API_URL } from '../services/userService';
 import Users from './Users';
 import SettingsForm from './SettingsForm';
+import ChatWindowContainer from './ChatWindowContainer';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -12,42 +13,53 @@ const AdminDashboard = () => {
   const [adminContext, setAdminContext] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
+  const [activeTab, setActiveTab] = useState('settings');
+  const [isAdmin, setIsAdmin] = useState(authService.isAdmin());
 
   useEffect(() => {
-    if (!authService.isAdmin()) {
-      navigate('/login');
-      return;
-    }
-
-    setApiKey(settingsService.getApiKey() || '');
-    // Always fetch admin context from the public endpoint for consistency
+    // Always fetch admin context from public endpoint for preview and settings
     const fetchAdminContext = async () => {
       try {
-        const { API_URL } = await import('../services/userService');
-        const response = await fetch(`${API_URL}/public/admin-context`);
-        const data = await response.json();
+        const res = await fetch(`${API_URL}/public/admin-context`);
+        if (!res.ok) throw new Error('Failed to fetch admin context');
+        const data = await res.json();
         setAdminContext(data.chat_context || '');
       } catch {
         setAdminContext('');
       }
     };
     fetchAdminContext();
-  }, [navigate]);
+    // Check if admin is logged in
+    setIsAdmin(authService.isAdmin());
+  }, []);
 
   const handleSave = async (e) => {
     e.preventDefault();
     setSaveStatus('');
+    if (!isAdmin) {
+      setSaveStatus('You must be logged in as admin to update the context.');
+      return;
+    }
     try {
       if (apiKey.trim()) {
         settingsService.setApiKey(apiKey.trim());
       }
       if (adminContext.trim()) {
-        // Save to database for admin user
-        const adminUser = authService.getUser();
-        if (adminUser && adminUser.id) {
-          await userService.updateChatContext(adminUser.id, adminContext.trim());
-        }
-        // Remove localStorage update for adminContext
+        // Fetch CSRF token first
+        const csrfRes = await fetch(`${API_URL}/csrf-token`, { credentials: 'include' });
+        const csrfData = await csrfRes.json();
+        const csrfToken = csrfData.csrfToken;
+        // Save to database for admin user using protected endpoint (requires admin login)
+        const res = await fetch(`${API_URL}/admin/context`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken
+          },
+          credentials: 'include',
+          body: JSON.stringify({ chat_context: adminContext.trim() })
+        });
+        if (!res.ok) throw new Error('Failed to update admin context');
       }
       setSaveStatus('Settings saved successfully!');
       setTimeout(() => setSaveStatus(''), 3000);
@@ -79,11 +91,28 @@ const AdminDashboard = () => {
         </div>
         <nav className="p-2">
           <ul className="space-y-1">
+            <li>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 ${activeTab === 'settings' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+              >
+                Settings
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 ${activeTab === 'preview' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}`}
+              >
+                Preview Chat
+              </button>
+            </li>
+            {/* Keep other nav items as NavLinks for routing */}
             {navItems.map((item) => (
               <li key={item.name}>
                 <NavLink
                   to={item.path}
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 ${isActive ? 'bg-blue-50 text-blue-600' : ''}`
                   }
                 >
@@ -105,36 +134,41 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-8">
-        <Routes>
-          <Route path="settings" element={
-            <SettingsForm 
-              apiKey={apiKey}
-              setApiKey={setApiKey}
-              adminContext={adminContext}
-              setAdminContext={setAdminContext}
-              showApiKey={showApiKey}
-              setShowApiKey={setShowApiKey}
-              saveStatus={saveStatus}
-              handleSave={handleSave}
-            />
-          } />
-          <Route path="users" element={<Users />} />
-          <Route path="transactions" element={<div className="text-gray-500 text-xl">Transactions feature coming soon.</div>} />
-          <Route path="analytics" element={<div className="text-gray-500 text-xl">Analytics feature coming soon.</div>} />
-          <Route path="alerts" element={<div className="text-gray-500 text-xl">Alerts feature coming soon.</div>} />
-          <Route path="*" element={
-            <SettingsForm 
-              apiKey={apiKey}
-              setApiKey={setApiKey}
-              adminContext={adminContext}
-              setAdminContext={setAdminContext}
-              showApiKey={showApiKey}
-              setShowApiKey={setShowApiKey}
-              saveStatus={saveStatus}
-              handleSave={handleSave}
-            />
-          } />
-        </Routes>
+        {activeTab === 'settings' && (
+          <SettingsForm
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            adminContext={adminContext}
+            setAdminContext={setAdminContext}
+            showApiKey={showApiKey}
+            setShowApiKey={setShowApiKey}
+            saveStatus={saveStatus}
+            handleSave={handleSave}
+          />
+        )}
+        {activeTab === 'preview' && (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Preview Chat</h2>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">Current Admin Chat Context</label>
+              <textarea
+                rows={6}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value={adminContext}
+                readOnly
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                This is the context currently set for the admin chat. To edit, go to the Settings tab.
+              </p>
+            </div>
+            <div className="mt-8">
+              <h3 className="text-lg font-medium mb-2">Live Admin Chat Preview</h3>
+              <ChatWindowContainer mode="admin" contextOverride={adminContext} />
+            </div>
+          </div>
+        )}
+        {/* Keep the old <Routes> for legacy routing, but hide if using tab UI */}
+        {/* <Routes> ... </Routes> */}
       </div>
     </div>
   );

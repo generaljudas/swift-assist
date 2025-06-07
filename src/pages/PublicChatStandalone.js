@@ -10,8 +10,17 @@ const PublicChatStandalone = () => {
   const [publicChatSubheader, setPublicChatSubheader] = useState(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
 
   useEffect(() => {
-    // Use the same logic as the dashboard preview: get context from localStorage
-    setUserContext(localStorage.getItem(USER_CHAT_CONTEXT_KEY) || '');
+    // Fetch context from backend public endpoint for 'user' account
+    const fetchContext = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/public/user-context/user');
+        const data = await res.json();
+        setUserContext(data.chat_context || '');
+      } catch {
+        setUserContext('');
+      }
+    };
+    fetchContext();
     setPublicChatHeader(localStorage.getItem('public_chat_header') || 'Chat with Swift Assist');
     setPublicChatSubheader(localStorage.getItem('public_chat_subheader') || 'Ask anything! This is a live AI chat preview for all visitors.');
   }, []);

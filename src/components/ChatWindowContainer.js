@@ -29,16 +29,14 @@ const ChatWindowContainer = ({ mode = 'admin', contextOverride }) => {
       try {
         let ctx = '';
         if (mode === 'admin') {
-          // Fetch admin context from public endpoint (no auth required)
+          // Always use the public endpoint for admin context (no auth required)
           const res = await axios.get(`${API_URL}/public/admin-context`);
           ctx = res.data?.chat_context || '';
-        } else {
-          // Fetch current user context
-          const user = authService.getUser();
-          if (user && user.id) {
-            const res = await axios.get(`${API_URL}/users/${user.id}`, { withCredentials: true });
-            ctx = res.data?.chat_context || '';
-          }
+        } else if (mode === 'user') {
+          // Always use the public endpoint for user context (no auth required)
+          // Use username 'user' for the public chat
+          const res = await axios.get(`${API_URL}/public/user-context/user`);
+          ctx = res.data?.chat_context || '';
         }
         setContext(ctx);
         setMessages([
