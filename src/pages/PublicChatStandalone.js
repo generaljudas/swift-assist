@@ -29,8 +29,8 @@ const PublicChatStandalone = () => {
         setPublicChatSubheader(data.public_chat_subheader || 'Ask anything! This is a live AI chat preview for all visitors.');
       } catch {
         setUserContext('');
-        setPublicChatHeader('Chat with Swift Assist');
-        setPublicChatSubheader('Ask anything! This is a live AI chat preview for all visitors.');
+        setPublicChatHeader('default values loaded, header fetch failed');
+        setPublicChatSubheader('default values loaded, subheader fetch failed');
       }
     };
     fetchContext();

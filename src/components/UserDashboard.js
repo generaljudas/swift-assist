@@ -10,8 +10,8 @@ const UserDashboard = () => {
   const [userContext, setUserContext] = useState('');
   const [loadingLinks, setLoadingLinks] = useState(true);
   const [customLinks, setCustomLinks] = useState([]);
-  const [publicChatHeader, setPublicChatHeader] = useState('Chat with Swift Assist');
-  const [publicChatSubheader, setPublicChatSubheader] = useState('Ask anything! This is a live AI chat preview for all visitors.');
+  const [publicChatHeader, setPublicChatHeader] = useState('Public chat header unavailable.');
+  const [publicChatSubheader, setPublicChatSubheader] = useState('Public chat subheader unavailable.');
 
   const handleLogout = () => {
     authService.logout();
@@ -59,11 +59,11 @@ const UserDashboard = () => {
         try {
           const res = await fetch('http://localhost:5000/api/public/user-context/user');
           const data = await res.json();
-          setPublicChatHeader(data.public_chat_header || 'Chat with Swift Assist');
-          setPublicChatSubheader(data.public_chat_subheader || 'Ask anything! This is a live AI chat preview for all visitors.');
+          setPublicChatHeader(data.public_chat_header || 'Public chat header unavailable.');
+          setPublicChatSubheader(data.public_chat_subheader || 'Public chat subheader unavailable.');
         } catch {
-          setPublicChatHeader('Chat with Swift Assist');
-          setPublicChatSubheader('Ask anything! This is a live AI chat preview for all visitors.');
+          setPublicChatHeader('Unable to load custom header. Please try again later.');
+          setPublicChatSubheader('Unable to load custom subheader. Please try again later.');
         }
       };
       fetchHeaders();
