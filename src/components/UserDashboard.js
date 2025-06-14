@@ -94,7 +94,11 @@ const UserDashboard = () => {
           'x-csrf-token': csrfToken
         },
         credentials: 'include',
-        body: JSON.stringify({ chat_context: userContext })
+        body: JSON.stringify({
+          chat_context: userContext,
+          public_chat_header: publicChatHeader,
+          public_chat_subheader: publicChatSubheader
+        })
       });
       if (!res.ok) throw new Error('Failed to update user chat context');
       alert('Context saved!');
