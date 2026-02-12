@@ -82,19 +82,6 @@ class AuthService {
 
   async login(email, password) {
     try {
-      // Support for legacy logins (admin/user)
-      if ((email === 'admin' && password === 'admin123') ||
-          (email === 'user' && password === 'user123')) {
-        this.isAuthenticated = true;
-        this.user = { 
-          username: email, 
-          email: `${email}@example.com`,
-          role: email === 'admin' ? 'admin' : 'user' 
-        };
-        this.saveAuthState();
-        return { user: this.user };
-      }
-
       // Use Supabase authentication
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
