@@ -18,9 +18,10 @@
 ## WORK DIVISION
 
 ### Computer 1 (Leader) - Infrastructure & Security
-- **Branch:** `main`
+- **Branch:** `refactor/backend-infrastructure`
 - **Focus:** Backend services, security, database, coordination
 - **Files:** Services, utils, config, documentation, package.json
+- **Note:** Initial security fixes were pushed to main, all future work on branch
 
 ### Computer 2 (Worker) - Components & UI
 - **Branch:** `refactor/components-cleanup`
@@ -65,20 +66,26 @@ git push origin refactor/components-cleanup
 ```
 
 ### Computer 1 Process:
-```bash
-# 1. Work on main branch
-git checkout main
+```bashfeature branch
+git checkout refactor/backend-infrastructure
 
-# 2. Make critical changes
+# 2. Make changes and commit
 git add .
-git commit -m "[SECURITY] Description"
+git commit -m "[TYPE] Description"
+git push origin refactor/backend-infrastructure
+
+# 3. When phase complete and tested:
+git checkout main
+git pull origin main
+git merge refactor/backend-infrastructure
 git push origin main
 
-# 3. Review Computer 2's work
+# 4. Review Computer 2's work
 git fetch origin
 git checkout refactor/components-cleanup
 # Review changes, test locally
 
+# 5. Merge Computer 2
 # 4. Merge when ready
 git checkout main
 git merge refactor/components-cleanup
