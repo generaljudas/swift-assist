@@ -1,0 +1,17 @@
+{
+  "extends": ["react-app", "react-app/jest"],
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "react/prop-types": "warn",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.js", "**/*.test.jsx"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}
