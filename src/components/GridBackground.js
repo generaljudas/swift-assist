@@ -6,12 +6,9 @@ const GridBackground = () => {
 
   useEffect(() => {
     if (!mountRef.current) {
-      console.error('Mount ref not available');
       return;
     }
 
-    console.log('Mounting GridBackground');
-    
     // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -22,11 +19,11 @@ const GridBackground = () => {
     );
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ 
+      renderer = new THREE.WebGLRenderer({
         alpha: true,
-        antialias: true
+        antialias: true,
       });
-      
+
       if (!renderer.domElement) {
         throw new Error('Failed to create WebGL canvas');
       }
@@ -38,21 +35,13 @@ const GridBackground = () => {
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
       renderer.domElement.style.zIndex = '-1';
-      
+
       if (!mountRef.current) {
         throw new Error('Mount point not found');
       }
-      
+
       mountRef.current.appendChild(renderer.domElement);
-      
-      console.log('Three.js initialized successfully');
-      console.log('Canvas dimensions:', {
-        width: renderer.domElement.width,
-        height: renderer.domElement.height
-      });
-      console.log('WebGL context:', renderer.getContext());
     } catch (error) {
-      console.error('Three.js initialization failed:', error);
       return;
     }
 
@@ -77,13 +66,9 @@ const GridBackground = () => {
     const handleMouseMove = (event) => {
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      
+
       // Update grid material based on mouse position
-      grid.material.color.setHSL(
-        Math.abs(mouse.x),
-        Math.abs(mouse.y),
-        0.5
-      );
+      grid.material.color.setHSL(Math.abs(mouse.x), Math.abs(mouse.y), 0.5);
     };
 
     window.addEventListener('mousemove', handleMouseMove);

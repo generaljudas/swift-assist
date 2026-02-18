@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
 import GoogleOAuthButton from './GoogleOAuthButton';
+import ErrorDisplay from './ErrorDisplay';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (email !== confirmEmail) {
       setError('Emails do not match');
       return;
@@ -30,7 +31,7 @@ const SignUp = () => {
         company: 'New User',
         botLinks: [],
         location: '',
-        businessType: 'Individual'
+        businessType: 'Individual',
       });
       navigate('/dashboard');
     } catch (error) {
@@ -41,28 +42,20 @@ const SignUp = () => {
   const handleGoogleSuccess = () => {
     // Google OAuth flow will redirect user to Google and back
     // The actual state change will happen in the auth callback route
-    console.log('Google authentication initiated');
   };
 
   const handleGoogleError = (error) => {
     setError('Google sign up failed. Please try again.');
-    console.error('Google sign up error:', error);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col justify-center relative">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-8">
-            Sign Up
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-8">Sign Up</h1>
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="text-red-600 text-sm mb-4">
-                {error}
-              </div>
-            )}
-            
+            <ErrorDisplay message={error} />
+
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
@@ -138,7 +131,7 @@ const SignUp = () => {
               >
                 Sign Up
               </button>
-              
+
               <div className="mt-4 relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
@@ -147,15 +140,15 @@ const SignUp = () => {
                   <span className="px-2 bg-white text-gray-500">Or continue with</span>
                 </div>
               </div>
-              
+
               <div className="mt-4">
-                <GoogleOAuthButton 
-                  className="w-full" 
-                  onSuccess={handleGoogleSuccess} 
+                <GoogleOAuthButton
+                  className="w-full"
+                  onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
                 />
               </div>
-              
+
               <div className="mt-4 text-center">
                 <Link to="/login" className="text-blue-600 hover:text-blue-500">
                   Already have an account? Login
