@@ -66,7 +66,8 @@ git push origin refactor/components-cleanup
 ```
 
 ### Computer 1 Process:
-```bashfeature branch
+```bash
+# feature branch
 git checkout refactor/backend-infrastructure
 
 # 2. Make changes and commit
