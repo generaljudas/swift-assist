@@ -1,9 +1,16 @@
 # COMPUTER 1 (LEADER) - Master Coordinator
 
-**Branch:** `main` (stays on main, coordinates all work)  
-**Role:** Planning, coordination, critical security fixes, code review  
+**Branch:** `refactor/backend-infrastructure` (work here, merge when tested)  
+**Role:** Planning, coordination, backend services, code review  
 **Status:** ACTIVE  
 **Last Updated:** 2026-02-12
+
+**⚠️ IMPORTANT WORKFLOW CHANGE:**
+- Computer 1 now works on `refactor/backend-infrastructure` branch
+- Computer 2 works on `refactor/components-cleanup` branch  
+- Both push to their branches regularly
+- Only merge to `main` after testing and coordination
+- `main` branch should always be stable and production-ready
 
 ---
 

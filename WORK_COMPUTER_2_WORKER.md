@@ -281,11 +281,26 @@ If you need to modify service files or encounter merge conflicts:
 2. Push your current progress
 3. Wait for Computer 1 to coordinate
 
+### 2026-02-12 - Test Environment Blocker
+
+- After merging `origin/refactor/backend-infrastructure` into `refactor/components-cleanup` and running `npm install`,
+  `npm test` still fails with the same error:
+  - `Cannot find module 'react-router-dom'` from:
+    - `src/App.test.js`
+    - `src/components/__tests__/Login.test.js`
+    - `src/components/__tests__/Register.test.js`
+    - `src/components/__tests__/Chat.test.js`
+- `react-router-dom@^7.1.3` is present in `dependencies` in `package.json`, and Jest config now includes:
+  - `transformIgnorePatterns: ["node_modules/(?!(react-router-dom|@remix-run)/)"]`
+  - `moduleNameMapper` for CSS via `identity-obj-proxy`.
+- This appears to be a Jest + React Router 7 tooling issue rather than a component-level problem.
+- Handing back to Computer 1 to adjust Jest/Router tooling; Computer 2 changes are ready pending test fix.
+
 ---
 
 ## CURRENT STATUS
 
-**Tasks Completed:** 0/5 phases  
-**Current Phase:** Setup  
-**Blocked On:** Nothing - start working!  
-**Notes:** Ready to begin component cleanup
+**Tasks Completed:** 5/5 phases  
+**Current Phase:** Testing & Review  
+**Blocked On:** Jest cannot resolve `react-router-dom` in test environment (see blocker note above)  
+**Notes:** Component cleanup, error handling, tests, and accessibility updates are implemented on `refactor/components-cleanup` and ready for review once test tooling is fixed

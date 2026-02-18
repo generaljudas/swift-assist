@@ -11,6 +11,20 @@ An intelligent customer support platform that provides 24/7 AI-powered chat assi
 - **Real-time Chat** - Responsive chat interface with conversation history
 - **Role-Based Access** - Separate admin and user dashboards
 
+## Screenshots & Demos
+
+### Home / Landing Page
+![Home / landing page](docs/screenshots/UI-home.gif)
+
+### Real-Time Chat
+![Real-time chat preview](docs/screenshots/UI-chat.gif)
+
+### Authentication
+![Login page](docs/screenshots/UI-login.PNG)
+
+### Admin Customization Panel
+![Admin panel customization](docs/screenshots/UI-admin-panel.PNG)
+
 ## Tech Stack
 
 - **Frontend:** React 19, React Router, Tailwind CSS, Material-UI
