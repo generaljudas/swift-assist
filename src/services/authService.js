@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 // Authentication service using Supabase
 import { supabase } from '../utils/supabaseClient';
 
@@ -37,7 +38,7 @@ class AuthService {
         }
       }
     } catch (error) {
-      console.error('Error loading auth state:', error);
+      logger.error('Error loading auth state:', error);
     }
   }
 
@@ -75,7 +76,7 @@ class AuthService {
         return { user: this.user };
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      logger.error('Registration error:', error);
       throw error;
     }
   }
@@ -103,7 +104,7 @@ class AuthService {
         return { user: this.user };
       }
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login error:', error);
       throw error;
     }
   }
@@ -122,7 +123,7 @@ class AuthService {
       // The user will be redirected to Google for authentication
       return data;
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      logger.error('Google sign-in error:', error);
       throw error;
     }
   }
@@ -150,7 +151,7 @@ class AuthService {
         }
       }
     } catch (error) {
-      console.error('Auth callback error:', error);
+      logger.error('Auth callback error:', error);
       throw error;
     }
   }
@@ -164,7 +165,7 @@ class AuthService {
       this.user = null;
       localStorage.removeItem('auth');
     } catch (error) {
-      console.error('Logout error:', error);
+      logger.error('Logout error:', error);
       throw error;
     }
   }

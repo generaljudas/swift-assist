@@ -18,20 +18,23 @@ const SettingsForm = ({
       <form onSubmit={handleSave} className="p-6 space-y-6">
         {/* API Key Section */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="api-key-input" className="block text-sm font-medium text-gray-700 mb-2">
             OpenAI API Key
           </label>
           <div className="relative">
             <input
+              id="api-key-input"
               type={showApiKey ? "text" : "password"}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your OpenAI API key"
+              aria-describedby="api-key-hint"
             />
             <button
               type="button"
               onClick={() => setShowApiKey(!showApiKey)}
+              aria-label={showApiKey ? "Hide API key" : "Show API key"}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {showApiKey ? "Hide" : "Show"}
@@ -41,17 +44,19 @@ const SettingsForm = ({
 
         {/* Context Section */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="chat-context-input" className="block text-sm font-medium text-gray-700 mb-2">
             Chat Context
           </label>
           <textarea
+            id="chat-context-input"
             value={adminContext}
             onChange={(e) => setAdminContext(e.target.value)}
             rows={6}
             className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             placeholder="Enter the default context for the chat AI"
+            aria-describedby="context-hint"
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p id="context-hint" className="mt-1 text-sm text-gray-500">
             This context will be used to guide the AI's responses about your services.
           </p>
         </div>
@@ -65,7 +70,11 @@ const SettingsForm = ({
             Save Settings
           </button>
           {saveStatus && (
-            <p className={`text-sm ${saveStatus.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+            <p
+              role="status"
+              aria-live="polite"
+              className={`text-sm ${saveStatus.includes('Error') ? 'text-red-600' : 'text-green-600'}`}
+            >
               {saveStatus}
             </p>
           )}

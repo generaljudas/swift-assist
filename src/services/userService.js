@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 import { databaseService } from './databaseService';
 
 class UserService {
@@ -22,7 +23,7 @@ class UserService {
         totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
       }));
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logger.error('Error fetching users:', error);
       throw new Error('Failed to fetch users');
     }
   }
@@ -45,7 +46,7 @@ class UserService {
         totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
       };
     } catch (error) {
-      console.error('Error fetching user:', error);
+      logger.error('Error fetching user:', error);
       throw new Error('Failed to fetch user');
     }
   }
@@ -68,7 +69,7 @@ class UserService {
         totalPurchasedTokens: user.metadata?.totalPurchasedTokens || 0
       };
     } catch (error) {
-      console.error('Error fetching user by email:', error);
+      logger.error('Error fetching user by email:', error);
       throw new Error('Failed to fetch user by email');
     }
   }
@@ -87,7 +88,7 @@ class UserService {
       
       return this.getUserById(user.id);
     } catch (error) {
-      console.error('Error adding user:', error);
+      logger.error('Error adding user:', error);
       throw new Error('Failed to add user');
     }
   }
@@ -97,7 +98,7 @@ class UserService {
       await databaseService.updateUser(id, updates);
       return this.getUserById(id);
     } catch (error) {
-      console.error('Error updating user:', error);
+      logger.error('Error updating user:', error);
       throw new Error('Failed to update user');
     }
   }
@@ -107,7 +108,7 @@ class UserService {
       await databaseService.addTokens(userId, amount);
       return this.getUserById(userId);
     } catch (error) {
-      console.error('Error adding tokens:', error);
+      logger.error('Error adding tokens:', error);
       throw new Error('Failed to add tokens');
     }
   }
@@ -116,7 +117,7 @@ class UserService {
     try {
       return await databaseService.deleteUser(id);
     } catch (error) {
-      console.error('Error removing user:', error);
+      logger.error('Error removing user:', error);
       throw new Error('Failed to remove user');
     }
   }

@@ -9,6 +9,11 @@
 # testing
 /coverage
 
+# Cypress E2E artifacts
+cypress/videos
+cypress/screenshots
+cypress.env.json
+
 # production
 /build
 

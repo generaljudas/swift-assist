@@ -60,7 +60,7 @@ const AdminDashboard = () => {
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">Admin Panel</h2>
         </div>
-        <nav className="p-2">
+        <nav className="p-2" aria-label="Admin navigation">
           <ul className="space-y-1">
             {navItems.map((item) => (
               <li key={item.name}>
