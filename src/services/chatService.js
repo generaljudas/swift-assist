@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 import axios from 'axios';
 
 // Configuration for different AI providers
@@ -32,7 +33,7 @@ class ChatService {
     try {
       return await this.sendWithCurrentProvider(message, conversationHistory);
     } catch (error) {
-      console.error(`Error with provider ${this.currentProvider}:`, error);
+      logger.error(`Error with provider ${this.currentProvider}:`, error);
       // Implement fallback logic here when more providers are added
       throw error;
     }
@@ -91,7 +92,7 @@ class ChatService {
       }
     } catch (error) {
       // Improved error handling with detailed logging
-      console.error('OpenAI API Error:', error.response?.data || error.message);
+      logger.error('OpenAI API Error:', error.response?.data || error.message);
       
       // Check for specific error types
       if (error.response?.status === 401) {

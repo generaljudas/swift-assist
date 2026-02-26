@@ -23,7 +23,7 @@ const GoogleOAuthButton = ({ className = '', onSuccess, onError }) => {
       className={`flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 ${className}`}
       type="button"
     >
-      <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" width="24" height="24">
+      <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
         <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
           <path
             fill="#4285F4"

@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 import { supabase } from '../utils/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,7 +14,7 @@ class DatabaseService {
   
   // Initialize database and create tables if needed
   async init() {
-    console.log('Initializing Supabase database service...');
+    logger.log('Initializing Supabase database service...');
     
     try {
       // Check if tables exist by querying them
@@ -24,14 +25,14 @@ class DatabaseService {
       
       // If tables don't exist or are empty, create them and add demo data
       if (companiesError || !companies || companies.length === 0) {
-        console.log('Setting up database tables and demo data...');
+        logger.log('Setting up database tables and demo data...');
         await this.setupTables();
         await this.addDemoData();
       } else {
-        console.log('Database already initialized');
+        logger.log('Database already initialized');
       }
     } catch (error) {
-      console.error('Error initializing database:', error);
+      logger.error('Error initializing database:', error);
     }
   }
   
@@ -50,16 +51,16 @@ class DatabaseService {
       const { error: createTemplatesError } = await this.supabase.rpc('create_chat_templates_table');
       if (createTemplatesError) throw createTemplatesError;
       
-      console.log('Database tables created successfully');
+      logger.log('Database tables created successfully');
     } catch (error) {
-      console.error('Error setting up tables:', error);
+      logger.error('Error setting up tables:', error);
       
       // If RPC functions don't exist, we'll create tables using SQL
-      console.log('Attempting to create tables using SQL...');
+      logger.log('Attempting to create tables using SQL...');
       
       // This is a fallback and would require SQL execution permissions
       // In a real app, you would use migrations or RPC functions
-      console.warn('Table creation via SQL not implemented - please create tables manually');
+      logger.warn('Table creation via SQL not implemented - please create tables manually');
     }
   }
   
@@ -155,9 +156,9 @@ class DatabaseService {
       
       if (templateError) throw templateError;
       
-      console.log('Demo data added successfully');
+      logger.log('Demo data added successfully');
     } catch (error) {
-      console.error('Error adding demo data:', error);
+      logger.error('Error adding demo data:', error);
     }
   }
   
@@ -171,7 +172,7 @@ class DatabaseService {
       `);
     
     if (error) {
-      console.error('Error fetching users:', error);
+      logger.error('Error fetching users:', error);
       return [];
     }
     
@@ -189,7 +190,7 @@ class DatabaseService {
       .single();
     
     if (error) {
-      console.error('Error fetching user:', error);
+      logger.error('Error fetching user:', error);
       return null;
     }
     
@@ -207,7 +208,7 @@ class DatabaseService {
       .single();
     
     if (error) {
-      console.error('Error fetching user by email:', error);
+      logger.error('Error fetching user by email:', error);
       return null;
     }
     
@@ -217,7 +218,7 @@ class DatabaseService {
   // Temporary method to bypass RLS for development
   async createUser(userData) {
     try {
-      console.log('Creating user with data:', userData);
+      logger.log('Creating user with data:', userData);
       
       // First, create a default company if none exists
       const defaultCompanyName = userData.company || 'Default Company';
@@ -229,7 +230,7 @@ class DatabaseService {
         });
       
       if (companiesError) {
-        console.error('Error with company:', companiesError);
+        logger.error('Error with company:', companiesError);
         
         // Fallback: Create company directly with service role
         const newCompanyId = uuidv4();
@@ -244,13 +245,13 @@ class DatabaseService {
           });
         
         if (insertError) {
-          console.error('Error creating company directly:', insertError);
+          logger.error('Error creating company directly:', insertError);
           throw new Error(`Failed to create company: ${insertError.message}`);
         }
         
         var companyId = newCompanyId;
       } else {
-        console.log('Company result:', companies);
+        logger.log('Company result:', companies);
         var companyId = companies[0]?.id;
       }
       
@@ -281,7 +282,7 @@ class DatabaseService {
         });
       
       if (userError) {
-        console.error('Error creating user:', userError);
+        logger.error('Error creating user:', userError);
         throw new Error(`Failed to create user: ${userError.message}`);
       }
       
@@ -296,13 +297,13 @@ class DatabaseService {
         .single();
       
       if (getUserError) {
-        console.error('Error fetching created user:', getUserError);
+        logger.error('Error fetching created user:', getUserError);
         throw new Error('User created but could not be retrieved');
       }
       
       return user;
     } catch (error) {
-      console.error('Error in createUser:', error);
+      logger.error('Error in createUser:', error);
       throw new Error('Failed to add user');
     }
   }
@@ -336,7 +337,7 @@ class DatabaseService {
           ]);
         
         if (companyError) {
-          console.error('Error creating company:', companyError);
+          logger.error('Error creating company:', companyError);
           throw new Error('Failed to create company');
         }
         
@@ -350,7 +351,7 @@ class DatabaseService {
         .eq('id', id);
       
       if (updateCompanyError) {
-        console.error('Error updating user company:', updateCompanyError);
+        logger.error('Error updating user company:', updateCompanyError);
         throw new Error('Failed to update user company');
       }
     }
@@ -393,7 +394,7 @@ class DatabaseService {
       .eq('id', id);
     
     if (updateError) {
-      console.error('Error updating user:', updateError);
+      logger.error('Error updating user:', updateError);
       throw new Error('Failed to update user');
     }
     
@@ -407,7 +408,7 @@ class DatabaseService {
       .eq('id', id);
     
     if (error) {
-      console.error('Error deleting user:', error);
+      logger.error('Error deleting user:', error);
       throw new Error('Failed to delete user');
     }
     
@@ -448,7 +449,7 @@ class DatabaseService {
       .eq('id', userId);
     
     if (error) {
-      console.error('Error adding tokens:', error);
+      logger.error('Error adding tokens:', error);
       throw new Error('Failed to add tokens');
     }
     

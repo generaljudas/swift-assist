@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,13 +8,23 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import Chat from './components/Chat';
-import AdminDashboard from './components/AdminDashboard';
-import UserDashboard from './components/UserDashboard';
-import Contact from './components/Contact';
+import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSpinner from './components/LoadingSpinner';
 import { authService } from './services/authService';
+
+// Lazy-loaded route components for code splitting
+const Login = lazy(() => import('./components/Login'));
+const Register = lazy(() => import('./components/Register'));
+const Chat = lazy(() => import('./components/Chat'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const UserDashboard = lazy(() => import('./components/UserDashboard'));
+const Contact = lazy(() => import('./components/Contact'));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <LoadingSpinner />
+  </div>
+);
 
 // OAuth Callback handler
 const AuthCallback = () => {
@@ -102,7 +112,7 @@ const Navigation = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 w-full">
+    <nav data-testid="main-nav" className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 w-full">
       <div>
         <Link
           to="/contact"
@@ -138,7 +148,7 @@ const Navigation = () => {
           </Link>
         )}
       </div>
-    </div>
+      </nav>
   );
 };
 
@@ -148,7 +158,16 @@ const App = () => {
 
   return (
     <Router>
-      <Routes>
+      <ErrorBoundary>
+        {/* Skip to main content for keyboard/screen reader users */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded-md focus:text-blue-600 focus:font-medium"
+        >
+          Skip to main content
+        </a>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
         <Route
           path="/"
           element={
@@ -161,6 +180,7 @@ const App = () => {
                   playsInline
                   disablePictureInPicture
                   disableRemotePlayback
+                  aria-hidden="true"
                   className="absolute inset-0 w-full h-full object-cover pointer-events-none
                   transition-transform duration-300 ease-in-out
                   [@media(min-aspect-ratio:16/9)]:scale-[1.2]
@@ -173,7 +193,7 @@ const App = () => {
                 </video>
               </div>
               <Navigation />
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
                   AI-Powered Customer Support
                 </h1>
@@ -188,7 +208,7 @@ const App = () => {
                     Get Started
                   </Link>
                 </div>
-              </div>
+              </main>
             </div>
           }
         />
@@ -225,6 +245,8 @@ const App = () => {
         {/* OAuth Callback Route */}
         <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </Router>
   );
 };

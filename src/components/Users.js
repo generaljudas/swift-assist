@@ -142,7 +142,12 @@ const Users = () => {
                 <TableCell>
                   {user.botLinks?.map((link, i) => (
                     <div key={i}>
-                      <a href={link} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${link} (opens in new tab)`}
+                      >
                         {link}
                       </a>
                     </div>

@@ -1,0 +1,18 @@
+# Netlify HTTP security headers
+# Applied to all routes
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Cache-Control: no-store, no-cache, must-revalidate
+
+# Cache static assets
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/favicon.ico
+  Cache-Control: public, max-age=86400

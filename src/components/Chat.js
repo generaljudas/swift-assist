@@ -19,7 +19,13 @@ const MessageBubble = ({ message }) => (
 );
 
 const MessageList = ({ messages, isLoading, messagesEndRef }) => (
-  <div className="h-[500px] sm:h-[550px] lg:h-[600px] overflow-y-auto p-4 sm:p-6">
+  <div
+    role="log"
+    aria-label="Conversation history"
+    aria-live="polite"
+    aria-relevant="additions"
+    className="h-[500px] sm:h-[550px] lg:h-[600px] overflow-y-auto p-4 sm:p-6"
+  >
     {messages.map((message, index) => (
       <MessageBubble key={index} message={message} />
     ))}

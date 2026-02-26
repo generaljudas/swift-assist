@@ -19,7 +19,7 @@ describe('Register Component', () => {
   test('validates email confirmation', async () => {
     renderWithRouter(<SignUp />);
 
-    fireEvent.change(screen.getByLabelText(/email/i), {
+    fireEvent.change(screen.getByLabelText(/^email$/i), {
       target: { value: 'user@example.com' },
     });
     fireEvent.change(screen.getByLabelText(/confirm email/i), {

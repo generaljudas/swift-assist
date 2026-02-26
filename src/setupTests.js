@@ -4,6 +4,9 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+// Mock browser APIs not available in jsdom
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
+
 // Setup test environment variables
 process.env.REACT_APP_SUPABASE_URL = 'https://test.supabase.co';
 process.env.REACT_APP_SUPABASE_ANON_KEY = 'test-anon-key';

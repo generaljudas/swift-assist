@@ -5,9 +5,14 @@ const mockNavigate = jest.fn();
 
 export const BrowserRouter = ({ children }) => <div>{children}</div>;
 export const Routes = ({ children }) => <div>{children}</div>;
-export const Route = ({ children }) => <div>{children}</div>;
+export const Route = ({ element, children }) => <div>{element !== undefined ? element : children}</div>;
 export const Link = ({ children, to, ...props }) => (
   <a href={to} {...props}>
+    {children}
+  </a>
+);
+export const NavLink = ({ children, to, className, ...props }) => (
+  <a href={to} className={typeof className === 'function' ? className({ isActive: false }) : className} {...props}>
     {children}
   </a>
 );
