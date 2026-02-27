@@ -1,8 +1,12 @@
 # COMPUTER 1 (LEADER) - Master Coordinator
 
+> **⚠️ ARCHIVED — This document is historical only.**  
+> It reflects pre-reset cleanup coordination and is **not** authoritative for product direction.  
+> The current source of truth is [ARCHITECTURE-CONSTRAINTS-v1.md](../ARCHITECTURE-CONSTRAINTS-v1.md) and [CONTEXT-CONTRACT-v1.md](../CONTEXT-CONTRACT-v1.md).
+
 **Branch:** `refactor/backend-infrastructure` (work here, merge when tested)  
 **Role:** Planning, coordination, backend services, code review  
-**Status:** ACTIVE  
+**Status:** ARCHIVED  
 **Last Updated:** 2026-02-12
 
 **⚠️ IMPORTANT WORKFLOW CHANGE:**

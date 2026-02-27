@@ -1,8 +1,12 @@
 # Swift Assist Cleanup - Master Execution Plan
 
+> **⚠️ ARCHIVED — This document is historical only.**  
+> It reflects pre-reset cleanup coordination and is **not** authoritative for product direction.  
+> The current source of truth is [ARCHITECTURE-CONSTRAINTS-v1.md](../ARCHITECTURE-CONSTRAINTS-v1.md) and [CONTEXT-CONTRACT-v1.md](../CONTEXT-CONTRACT-v1.md).
+
 **Start Date:** 2026-02-12  
 **Coordination Model:** Computer 1 (Leader) + Computer 2 (Worker)  
-**Status:** ✅ COMPLETE (2026-02-26)
+**Status:** ✅ COMPLETE (2026-02-26) — Archived
 
 ---
 

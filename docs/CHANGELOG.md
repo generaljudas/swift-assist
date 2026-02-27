@@ -7,7 +7,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-_Nothing pending yet — see [ROADMAP.md](./ROADMAP.md) for what's coming._
+### Changed
+- README rewritten to align with v1 contracts (closed-domain conversational interface, not "customer support platform")
+- All `docs/archive/` files marked with deprecation notices pointing to v1 source-of-truth documents
+- Documentation hierarchy clarified: ARCHITECTURE-CONSTRAINTS-v1.md and CONTEXT-CONTRACT-v1.md are the sole authoritative product direction docs
 
 ---
 

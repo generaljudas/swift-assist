@@ -1,8 +1,12 @@
 # COMPUTER 2 (WORKER) - Component & UI Specialist
 
+> **⚠️ ARCHIVED — This document is historical only.**  
+> It reflects pre-reset cleanup coordination and is **not** authoritative for product direction.  
+> The current source of truth is [ARCHITECTURE-CONSTRAINTS-v1.md](../ARCHITECTURE-CONSTRAINTS-v1.md) and [CONTEXT-CONTRACT-v1.md](../CONTEXT-CONTRACT-v1.md).
+
 **Branch:** `refactor/components-cleanup`  
 **Role:** React components, UI improvements, removing console.logs, testing  
-**Status:** ACTIVE  
+**Status:** ARCHIVED  
 **Last Updated:** 2026-02-12
 
 ---
