@@ -1,99 +1,98 @@
-# Swift Assist — Project Roadmap
+# Swift Assist — Roadmap (v1 Direction Reset)
 
 **Last Updated:** 2026-02-26  
-**Status:** Active Development  
-**Owner:** <!-- your name / team -->
+**Status:** Direction reset (planning → implementation next)  
+**Owner:** Javier Ibarra
 
-This document defines the project's current direction, upcoming phases, and the constraints that govern all decisions. Update this when priorities shift — it is the single source of truth for where Swift Assist is headed.
-
----
-
-## Vision
-
-<!-- One or two sentences describing the end state of the product. -->
-> _What does Swift Assist look like when it's "done"? Who uses it and what problem does it solve?_
+This roadmap is the execution plan for Swift Assist v1. It is **forward-looking**.
+For historical shipped changes, see [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 
-## Guiding Principles
+## v1 Non‑Negotiable Contracts (Source of Truth)
 
-> These are the non-negotiable rules that every contribution must respect.
+These documents define what Swift Assist **is** and what it **cannot become** in v1:
 
-1. **Security first** — No secrets in the repo. Credentials always via environment variables.
-2. **Test before ship** — No feature merges to `main` without accompanying tests.
-3. **Supabase is the database** — No new ORM, no local SQLite, no dual-database patterns.
-4. **main is always deployable** — Feature work lives on branches; `main` reflects production.
-5. <!-- Add your own rule -->
-6. <!-- Add your own rule -->
+- **Context Contract:** [CONTEXT-CONTRACT-v1.md](./CONTEXT-CONTRACT-v1.md)
+- **Architecture Constraints:** [ARCHITECTURE-CONSTRAINTS-v1.md](./ARCHITECTURE-CONSTRAINTS-v1.md)
+
+If a proposed feature conflicts with either document, it is **out of scope for v1**.
+
+---
+
+## Vision (v1)
+
+Swift Assist is a **closed-domain conversational interface** to **owner-defined knowledge**.
+It answers only from **Metadata + a single Primary Context Body**. No retrieval, no ingestion, no hidden knowledge.
+
+---
+
+## Guiding Principles (v1)
+
+1. **No retrieval** — no web search, no file ingestion, no vector DBs.
+2. **Single knowledge source** — Primary Context Body is the only source of “truth.”
+3. **No guessing** — if not in context/metadata, the assistant must say so and route to owner.
+4. **Scope protection** — features that require crawling, uploads, or multi-doc merging are v1 “no.”
+5. **Security first** — no secrets in repo; env vars only.
+6. **main is deployable** — work happens on branches; PRs required.
 
 ---
 
 ## Current Phase
 
-### Phase 4 — <!-- Give it a name, e.g. "Feature Buildout" -->
+### Phase 0 — Direction Reset → Implementation Plan Lock
 
-**Goal:** <!-- What does success look like at the end of this phase? -->  
-**Target dates:** <!-- e.g. 2026-03-01 to 2026-03-31 -->  
-**Branch strategy:** <!-- e.g. feature/* branches off main, PR required to merge -->
+**Goal:** Convert the v1 contract into concrete product requirements and engineering tasks.  
+**Exit criteria:** We can start coding without ambiguity.
 
 #### In Progress
-- [ ] <!-- Task -->
-- [ ] <!-- Task -->
+- [ ] Translate Context Contract into explicit runtime rules (allowed inputs, disallowed behaviors)
+- [ ] Define the v1 data model: Metadata + Primary Context Body (fields, limits, validation)
+- [ ] Define core user flows:
+	- [ ] Owner setup (enter metadata + context body, refine)
+	- [ ] Follower chat runtime (answers constrained to context)
 
 #### Up Next
-- [ ] <!-- Task -->
-- [ ] <!-- Task -->
+- [ ] Create an “Out of Scope for v1” list based on the contracts (uploads, ingestion, retrieval, etc.)
+- [ ] Define acceptance tests (behavioral) for “No guessing / No hallucinated specifics”
+- [ ] Decide tracking system (GitHub Issues/Projects) and map roadmap items to issues
 
-#### Out of Scope (this phase)
-- <!-- Explicitly list things you are NOT doing this phase to avoid scope creep -->
+#### Out of Scope (Phase 0)
+- Any feature that expands knowledge sources beyond Metadata + Primary Context Body
 
 ---
 
-## Backlog
+## Next Phase (planned)
 
-> Rough future work, not yet committed to a phase. Ordered loosely by priority.
+### Phase 1 — v1 Minimal Product (Contract-Compliant Assistant)
+
+**Goal:** Ship the smallest working system that fully obeys the v1 contracts.
+
+#### Candidate deliverables (draft)
+- [ ] Owner can create/update assistant metadata + Primary Context Body
+- [ ] Runtime chat uses only metadata + Primary Context Body
+- [ ] Guardrails: “cannot answer → acknowledge limitation + suggest contacting owner”
+- [ ] Basic auditability: log which context fields were used (no extra knowledge stores)
+
+---
+
+## Backlog (Not Scheduled)
 
 ### High Priority
-- [ ] <!-- e.g. Rate limiting on the chat API endpoint -->
-- [ ] <!-- e.g. Admin ability to delete / ban users -->
+- [ ] Setup “gap suggestions” (only as guidance; not stored as a secondary knowledge layer)
+- [ ] UX for refining Primary Context Body before launch
 
-### Medium Priority
-- [ ] <!-- e.g. Dark mode support -->
-- [ ] <!-- e.g. Webhook support for chat events -->
-
-### Low Priority / Nice to Have
-- [ ] <!-- e.g. Export chat history as PDF -->
-- [ ] <!-- e.g. Multi-language support -->
+### Later (Explicitly Not v1 Runtime)
+- [ ] Knowledge gap loop: logging frequently unanswered questions (post‑v1)
 
 ---
 
-## Completed Phases
+## Historical Note (pre-reset)
+
+The entries below reflect earlier work prior to the v1 scope reset and may not map 1:1 to v1 deliverables.
 
 | Phase | Summary | Completed |
 |-------|---------|-----------|
 | Phase 1 | Security hardening — removed exposed credentials, fixed `.gitignore`, rotated keys | 2026-02-12 |
 | Phase 2 | Code quality — removed Sequelize, replaced `console.*` with logger, added ESLint/Prettier | 2026-02-16 |
 | Phase 3 | Testing & accessibility — 66 unit tests, Cypress E2E suite, ARIA improvements, code splitting | 2026-02-26 |
-
-_See [CHANGELOG.md](./CHANGELOG.md) for detailed change history per release._
-
----
-
-## Architecture Decisions
-
-Key decisions that are locked and should not be revisited without a deliberate discussion.
-
-| Decision | Rationale | Date |
-|----------|-----------|------|
-| Supabase only (no Sequelize/SQLite) | Reduce complexity; one auth + DB layer | 2026-02-12 |
-| React on the frontend, no SSR | Team familiarity; Vercel deployment | — |
-| <!-- Decision --> | <!-- Why --> | <!-- When --> |
-
----
-
-## How to Use This Document
-
-- **Adding a task:** Drop it in the Backlog. Move it to the current phase when work begins.
-- **Completing a task:** Check the box, then add an entry to [CHANGELOG.md](./CHANGELOG.md).
-- **Changing direction:** Update the Vision, Guiding Principles, or current phase — and note _why_ in CHANGELOG.md under `[Unreleased]`.
-- **Starting a new phase:** Move the current phase to the Completed Phases table, create a new "Current Phase" section.
