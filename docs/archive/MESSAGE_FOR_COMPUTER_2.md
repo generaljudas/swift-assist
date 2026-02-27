@@ -1,5 +1,9 @@
 # Message for Computer 2
 
+> **⚠️ ARCHIVED — This document is historical only.**  
+> It reflects pre-reset coordination between development machines and is **not** authoritative.  
+> The current source of truth is [ARCHITECTURE-CONSTRAINTS-v1.md](../ARCHITECTURE-CONSTRAINTS-v1.md) and [CONTEXT-CONTRACT-v1.md](../CONTEXT-CONTRACT-v1.md).
+
 ## Test Dependency Issue - RESOLVED ✅
 
 **Issue:** Jest couldn't resolve `react-router-dom` in test environment  

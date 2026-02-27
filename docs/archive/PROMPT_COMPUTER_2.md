@@ -1,5 +1,9 @@
 # Computer 2 Startup Prompt
 
+> **⚠️ ARCHIVED — This document is historical only.**  
+> It reflects pre-reset coordination prompts and is **not** authoritative for product direction.  
+> The current source of truth is [ARCHITECTURE-CONSTRAINTS-v1.md](../ARCHITECTURE-CONSTRAINTS-v1.md) and [CONTEXT-CONTRACT-v1.md](../CONTEXT-CONTRACT-v1.md).
+
 Copy and paste this into GitHub Copilot on Computer 2:
 
 ---

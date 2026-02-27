@@ -1,15 +1,18 @@
-# Swift Assist - AI-Powered Customer Support Platform
+# Swift Assist — Conversational Interface to Owner-Defined Knowledge
 
-An intelligent customer support platform that provides 24/7 AI-powered chat assistance to your customers.
+Swift Assist is a **closed-domain conversational interface** that lets owners share knowledge through AI-powered chat. Owners define a **Primary Context Body** — a single freeform text field — and Swift Assist turns that into a conversational experience for their audience.
 
-## Features
+There is no document ingestion, no retrieval, no hidden knowledge layer. The assistant answers **only** from information the owner explicitly provides.
 
-- **AI Chat Interface** - Powered by OpenAI GPT-3.5-turbo for intelligent customer interactions
-- **User Authentication** - Secure login with Supabase Auth and Google OAuth integration
-- **Admin Dashboard** - Manage users, settings, and chat templates
-- **Customizable Context** - Configure AI behavior per customer or globally
-- **Real-time Chat** - Responsive chat interface with conversation history
-- **Role-Based Access** - Separate admin and user dashboards
+> **Source of truth:** [ARCHITECTURE-CONSTRAINTS-v1.md](docs/ARCHITECTURE-CONSTRAINTS-v1.md) and [CONTEXT-CONTRACT-v1.md](docs/CONTEXT-CONTRACT-v1.md) define what Swift Assist v1 is and what it cannot become.
+
+## Core Concepts
+
+- **Primary Context Body** — The single knowledge source. One text field, written by the owner. No secondary layers.
+- **Metadata** — Name, category, optional schedule/pricing text.
+- **Closed-domain chat** — The assistant reasons from provided context only. No guessing, no hallucinated specifics.
+- **Setup Intelligence** — AI assists during onboarding to help refine the Primary Context. It is a helper, not a second database.
+- **Scope protection** — No file uploads, no vector DBs, no retrieval pipelines, no integrations. See the architecture constraints.
 
 ## Screenshots & Demos
 
@@ -139,16 +142,18 @@ swift-assist/
 
 ## Current Status
 
-🚧 **This project is under active refactoring and cleanup** 🚧
+Swift Assist v1 is in **Phase 0 — Direction Reset**. The project went through a cleanup period (security hardening, code quality, testing) and is now locked to a clear product direction.
 
-We're improving code quality, security, and maintainability. See `MASTER_PLAN.md` for details.
+See [ROADMAP.md](docs/ROADMAP.md) for the execution plan and [CHANGELOG.md](docs/CHANGELOG.md) for shipped changes.
+
+> **Note:** Earlier documentation in `docs/archive/` reflects pre-reset coordination work and is **not** authoritative. The v1 contracts are the only product direction documents.
 
 ## Contributing
 
-This project uses a coordinated development workflow with multiple contributors. Please see:
-- `MASTER_PLAN.md` - Overall coordination and progress
-- `WORK_COMPUTER_1_LEADER.md` - Backend and infrastructure tasks
-- `WORK_COMPUTER_2_WORKER.md` - Frontend and component tasks
+Before contributing, read:
+- [ARCHITECTURE-CONSTRAINTS-v1.md](docs/ARCHITECTURE-CONSTRAINTS-v1.md) — What Swift Assist v1 **must** and **must not** do
+- [CONTEXT-CONTRACT-v1.md](docs/CONTEXT-CONTRACT-v1.md) — The knowledge model and runtime rules
+- [ROADMAP.md](docs/ROADMAP.md) — Current phase and planned work
 
 ## Deployment
 
