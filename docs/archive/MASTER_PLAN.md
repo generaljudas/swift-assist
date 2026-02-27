@@ -147,11 +147,11 @@ git push origin main
 
 ### Week 1 Goals (Feb 12-16)
 - [x] Security fixes (exposed credentials)
-- [ ] Database cleanup (remove Sequelize)
-- [ ] Remove all console.logs
-- [ ] Add error boundaries
-- [ ] Basic component tests
-- [ ] Update documentation
+- [x] Database cleanup (remove Sequelize)
+- [x] Remove all console.logs (replaced with logger utility)
+- [x] Add error boundaries (ErrorBoundary component)
+- [x] Basic component tests (11 tests passing by end of week 1)
+- [x] Update documentation (README updated)
 
 ### Week 2 Goals (Feb 19-23)
 - [x] Comprehensive testing (66 tests across 13 suites)
